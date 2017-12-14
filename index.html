@@ -1,0 +1,50 @@
+---
+layout: default
+---
+
+<div class="posts">
+  {% for post in paginator.posts %}
+    <article class="post">
+
+      <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+      <h2><a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a></h2>
+
+      <div class="entry">
+        {{ post.excerpt }}
+      </div>
+
+      <a href="{{ site.url }}{{ post.url }}" class="read-more">Read More</a>
+    </article>
+    <hr/>
+  {% endfor %}
+</div>
+
+<ul class="pager"> 
+  {% if paginator.previous_page %}
+    <li class="previous">
+      {% if paginator.previous_page == 1 %}
+        <a href="{{ site.url }}/">&larr; Next</a>
+      {% else %}
+        <a href="{{ site.url }}/{{ site.paginate_path | replace: ':num', paginator.previous_page }}">&larr; Next</a>
+      {% endif %}
+    </li>
+  {% else %}
+    <li class="previous disabled">
+      <a>&larr; Next</a>
+    </li>
+  {% endif %}
+
+  <li>
+    <span class="page_number">Page: {{ paginator.page }} sur {{ paginator.total_pages }}</span>
+  </li>
+
+  {% if paginator.next_page %}
+    <li class="next">
+      <a href="{{ site.url }}/{{ site.paginate_path | replace: ':num', paginator.next_page }}">Previous &rarr;</a>
+    </li>
+  {% else %}
+    <li class="next disabled">
+      <a>Previous &rarr;</a>        
+    </li>
+  {% endif %}
+</ul>

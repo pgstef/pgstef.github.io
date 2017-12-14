@@ -1,1 +1,15 @@
+title: pgstef's blog
+description: SELECT * FROM pgstef
 theme: jekyll-theme-hacker
+
+name: Stefan Fercot
+work: PostgreSQL DBA
+company: Dalibo
+avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
+twitter: pgstef
+email: stefan.fercot@gmail.com
+
+excerpt_separator: "<!--MORE-->"
+paginate: 10
+paginate_path: "page:num"
+exclude: ["README.md", "syntax.md", "_drafts/template.md"]

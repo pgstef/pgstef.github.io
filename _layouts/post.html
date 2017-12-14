@@ -1,0 +1,59 @@
+---
+layout: default
+---
+
+<div class="page-header">
+	<h1>{{ page.title }}</h1>
+</div>
+	
+<article>
+	<div class="col-sm-10">
+		<span class="post-date">
+			Published on <strong>{{ page.date | date: "%d/%m/%Y" }} </strong> by {{ site.name }}.   
+		</span>
+	
+		<div class="article_body">
+			{{ content }}
+		</div>
+		
+		<hr/>
+
+		<div>
+			<section class="share col-sm-6">
+				<h4 class="section-title">Share this post !</h4>
+					<a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text={{page.title | encode}}{% if site.twitter%}&via={{site.twitter}}{% endif %}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+						Twitter
+					</a>
+
+					<a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+						Facebook
+					</a>
+
+					<a class="btn btn-default btn-sm gplus" onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+						Google+
+					</a>
+			</section>
+		</div>
+
+		<div class="clearfix"></div>
+
+		<ul class="pager">
+			{% if page.previous %}
+				<li class="previous"><a href="{{ site.url }}{{ page.previous.url }}" title="{{ page.previous.title }}">&larr; Previous</a></li>
+			{% else %}
+				<li class="previous disabled"><a>&larr; Previous</a></li>
+			{% endif %}
+
+			{% if page.next %}
+				<li class="next"><a href="{{ site.url }}{{ page.next.url }}" title="{{ page.next.title }}">Next &rarr;</a></li>
+			{% else %}
+				<li class="next disabled"><a>Next &rarr;</a>
+			{% endif %}
+		</ul>
+
+		<hr/>
+	</div>
+
+</article>
+
+<div class="clearfix"></div>
