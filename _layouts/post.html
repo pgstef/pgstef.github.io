@@ -17,20 +17,23 @@ layout: default
 		</div>
 		
 		<hr/>
+		<script>window.twttr = (function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0],
+		    t = window.twttr || {};
+		  if (d.getElementById(id)) return t;
+		  js = d.createElement(s);
+		  js.id = id;
+		  js.src = "https://platform.twitter.com/widgets.js";
+		  fjs.parentNode.insertBefore(js, fjs);
 
-		<div>
-			<section class="share col-sm-6">
-				<h4 class="section-title">Share this post !</h4>
-					<a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text={{page.title | encode}}{% if site.twitter%}&via={{site.twitter}}{% endif %}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-						Twitter
-					</a>
+		  t._e = [];
+		  t.ready = function(f) {
+		    t._e.push(f);
+		  };
 
-					<a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-						Facebook
-					</a>
-			</section>
-		</div>
-
+		  return t;
+		}(document, "script", "twitter-wjs"));</script>
+		<a class="twitter-share-button" href="https://twitter.com/intent/tweet">Tweet</a>
 		<div class="clearfix"></div>
 
 		<ul class="pager">
