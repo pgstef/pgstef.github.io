@@ -17,6 +17,14 @@ pgBackRest has some great features, like :
 - Local or remote operation
 - Full, incremental and differential backups
 
+This article will present how to perform some basic actions :
+
+- Installation
+- Local backup and restore
+- Remote backup
+
+-----
+
 # [](#installation)Installation
 
 pgBackRest is written in Perl. Some additional modules must also be installed but they are available as standard packages.
@@ -91,7 +99,9 @@ db-path=/var/lib/pgsql/10/data
 
 The `global` section allows to specify the repository to stores the backups and WAL segments archives.
 
-The `localhost` section is called a `stanza`. It's the name used by pgBackRest to define the configuration related to a PostgreSQL cluster, which allows to, among other parameters, specify where is located the data directory.
+The `localhost` section is called a `stanza`. 
+
+A stanza is the configuration for a PostgreSQL database cluster that defines where it is located, how it will be backed up, archiving options, etc. Most db servers will only have one PostgreSQL database cluster and therefore one stanza, whereas backup servers will have a stanza for every database cluster that needs to be backed up.
 
 Configure archiving in the `postgresql.conf` file :
 
