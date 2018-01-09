@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Filter out pg_dump from check_pgactivity alerts
-draft: true
 ---
 
 check_pgactivity (https://github.com/OPMDG/check_pgactivity) is designed to monitor PostgreSQL clusters from Nagios. It offers many options to measure and monitor useful performance metrics.
