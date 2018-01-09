@@ -6,15 +6,15 @@ draft: true
 
 check_pgactivity (https://github.com/OPMDG/check_pgactivity) is designed to monitor PostgreSQL clusters from Nagios. It offers many options to measure and monitor useful performance metrics.
 
-Imagine you have a very large database and pg_dump produce abnormal query time alerts. The latest release of check_pgactivity offers a way to filter out those alerts !
+Imagine you have a very large database and pg_dump produce abnormal query time alerts. The upcoming release of check_pgactivity offers a way to filter out those alerts !
 
 <!--MORE-->
 
 -----
 
-Since the 2.3 version, it is possible to filter out pg_dump from the `oldest_idlexact` service. Indeed, above PostgreSQL 9.2, the service supports `--exclude` to filter out connections.
+In the 2.4 version, it will be possible to filter out pg_dump from the `oldest_idlexact` service. Indeed, above PostgreSQL 9.2, the service supports `--exclude` to filter out connections.
 
-In the next release, the `longest_query` service will also, above PostgreSQL 9.0, support `--exclude` to filter out application names.
+The `longest_query` service will also, above PostgreSQL 9.0, support `--exclude` to filter out application names.
 
 Let's see an example.
 
@@ -88,3 +88,7 @@ POSTGRES_OLDEST_IDLEXACT OK: 0 idle transaction(s)
 ```
 
 -----
+
+In addition to those features, the 2.4 release will also contain some bug fixes in `sequences_exhausted` and `backends_status` services.
+
+The new release candidate should be available soon !
