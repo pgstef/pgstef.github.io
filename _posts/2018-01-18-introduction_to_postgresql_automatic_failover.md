@@ -18,7 +18,7 @@ Let's see in this post how to perform some basic actions with it.
 
 Pacemaker is nowadays the industry reference for High Availability. The Pacemaker + Corosync stack is able to detect failures on various services and automatically decide to failover the failing resource to another node when possible.
 
-To be able to manage a specific service resource, Pacemaker interact with it through a so-called "Resource Agent". Resource agents must comply to the OCF specification which define what they must implement (start, stop, promote, etc), how they should behave and inform Pacemaker of their results.
+To be able to manage a specific service resource, Pacemaker interact with it through a so-called "Resource Agent". A Resource Agent is an external program that abstracts the service it provides and present a consistent view to the cluster.
 
 PostgreSQL Automatic Failover (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent dedicated to PostgreSQL. Its original wish is to keep a clear limit between the Pacemaker administration and the PostgreSQL one, to keep things simple, documented and yet powerful.
 
