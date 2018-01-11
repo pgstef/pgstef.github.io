@@ -441,16 +441,6 @@ To start the cluster :
 # pcs resource enable pgsql-ha
 ```
 
-FIXME
-```
-AVANT enable :
-Failed Actions:
-* fence_vm_server1_start_0 on server2 'unknown error' (1): call=10, status=Error, exitreason='none',
-    last-rc-change='Thu Jan 11 09:53:00 2018', queued=0ms, exec=1341ms
-* fence_vm_server2_start_0 on server1 'unknown error' (1): call=10, status=Error, exitreason='none',
-    last-rc-change='Thu Jan 11 09:53:00 2018', queued=0ms, exec=1442ms
-```
-
 To stop the cluster on a specific node, ban the `pgsql-ha` resource from the node :
 
 ```bash
