@@ -1,7 +1,6 @@
 ---
 layout: post
 title: PostgreSQL 11 preview - update a partition key
-draft: true
 ---
 
 In the case of a partitioned table, updating a row might cause it to no
