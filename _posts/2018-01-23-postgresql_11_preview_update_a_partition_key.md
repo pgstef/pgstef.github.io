@@ -15,7 +15,7 @@ that case.
 
 With PostgreSQL 10, that case threw an error.
 
-For example :
+For example:
 
 ```sql
 # CREATE TABLE t1 (c1 int) PARTITION BY RANGE (c1);
@@ -36,17 +36,17 @@ For example :
 (1 row)
 ```
 
-Let's try this simple `UPDATE` :
+Let's try this simple `UPDATE`:
 
 ```sql
-v10=# UPDATE t1 SET c1 = c1 + 10 ;
+v10=# UPDATE t1 SET c1 = c1 + 10;
 ERROR:  new row for relation "t1_part_1" violates partition constraint
 DETAIL:  Failing row contains (11).
 ```
 
 -----
 
-Some days ago, there was this new feature added in version 11 which is currently in development :
+Some days ago, there was this new feature added in version 11 which is currently under development:
 
 ```
 commit: 2f178441044be430f6b4d626e4dae68a9a6f6cec
@@ -77,10 +77,10 @@ will also occur when updating a partition directly.
 
 Behind the scenes, the row movement is actually a `DELETE` and `INSERT` operation.
 
-Let's see how the simple example above behave :
+Let's see how the simple example above behave:
 
 ```sql
-v11=# UPDATE t1 SET c1 = c1 + 10 ;
+v11=# UPDATE t1 SET c1 = c1 + 10;
 UPDATE 9
 
 v11=# SELECT COUNT(*) FROM t1_part_1;
