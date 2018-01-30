@@ -8,13 +8,13 @@ draft: true
 
 While the automatic failover influence the recovery time objective (RTO), the recovery point objective (RPO) is balanced by the PostgreSQL Streaming Replication.
 
-Let's see in this post how to perform some basic actions with it.
+Let's see in this post how to quickly install it.
 
 <!--MORE-->
 
 -----
 
-# [](#introduction)Introdution
+# [](#introduction)Introduction
 
 Pacemaker is nowadays the industry reference for High Availability. The Pacemaker + Corosync stack is able to detect failures on various services and automatically decide to failover the failing resource to another node when possible.
 
@@ -98,10 +98,10 @@ Pacemaker installation :
 
 We'll later create one fencing resource per node to fence. They are called fence_vm_xxx and use the fencing agent fence_virsh, allowing to power on or off a virtual machine using the virsh command through a ssh connexion to the hypervisor. You'll need to make sure your VMs are able to connect as root (it is possible to use a normal user with some more setup though) to your hypervisor.
 
-Install the latest PAF version :
+Install the latest PAF version, directly from the PGDG repository :
 
 ```bash
-# yum install -y https://github.com/ClusterLabs/PAF/releases/download/v2.2.0/resource-agents-paf-2.2.0-1.noarch.rpm
+# yum install -y resource-agents-paf
 ```
 
 It is advised to keep Pacemaker off on server boot. It helps the administrator to investigate after a node fencing before Pacemaker starts and potentially enters in a death match with the other nodes. Make sure to disable Corosync as well to avoid unexpected behaviors. 
@@ -227,7 +227,7 @@ pcs -f cluster1.xml constraint location fence_vm_server2 avoids server2=INFINITY
 pcs cluster cib-push cluster1.xml
 ```
 
-Check the cluster status with :
+Check the cluster status :
 
 ```
 # pcs status
@@ -251,17 +251,6 @@ Daemon Status:
   corosync: active/disabled
   pacemaker: active/disabled
   pcsd: active/enabled
-```
-
-or with :
-
-```
-# crm_mon -n1D
-
-Node server1: online
-	fence_vm_server2	(stonith:fence_virsh):	Started
-Node server2: online
-	fence_vm_server1	(stonith:fence_virsh):	Started
 ```
 
 -----
@@ -350,20 +339,6 @@ Daemon Status:
   pcsd: active/enabled
 ```
 
-or with :
-
-```bash
-# crm_mon -n1D
-
-Node server1: online
-	fence_vm_server2	(stonith:fence_virsh):	Started
-	pgsql-master-ip	(ocf::heartbeat:IPaddr2):	Started
-	pgsqld	(ocf::heartbeat:pgsqlms):	Master
-Node server2: online
-	fence_vm_server1	(stonith:fence_virsh):	Started
-	pgsqld	(ocf::heartbeat:pgsqlms):	Slave
-```
-
 And finally, try to connect :
 
 ```
@@ -402,94 +377,12 @@ postgres=# SELECT pg_is_in_recovery();
 
 -----
 
-# [](#cluster-management)Cluster management
-
-The documentation provides cookbooks : http://clusterlabs.github.io/PAF/CentOS-7-admin-cookbook.html
-
-Let's see how to perform some important actions.
-
------
-
-## [](#starting-or-stopping-the-cluster)Starting or stopping the cluster
-
-It's possible to show the resources handled by the cluster :
-
-```
-# pcs resource show
- pgsql-master-ip	(ocf::heartbeat:IPaddr2):	Started server1
- Master/Slave Set: pgsql-ha [pgsqld]
-     Masters: [ server1 ]
-     Slaves: [ server2 ]
-```
-
-To completely stop the cluster (and its resources), first disable the `pgsql-ha` resource :
-
-```bash
-# pcs resource disable pgsql-ha
-```
-
-Then, stop the cluster on all nodes (one by one or at once) :
-
-```bash
-# pcs cluster stop --all
-```
-
-To start the cluster :
-
-```bash
-# pcs cluster start --all
-# pcs resource enable pgsql-ha
-```
-
-To stop the cluster on a specific node, ban the `pgsql-ha` resource from the node :
-
-```bash
-# pcs resource ban --wait pgsql-ha server2
-```
-
-You can now the stop the cluster safely. To bring the resource back online, clear it :
-
-```bash
-# pcs resource clear pgsql-ha
-```
-
------
-
-## [](#maintenance-mode)Maintenance mode
-
-To perform some maintenance task without stopping the resources, you just need to make sure the cluster manager do not decide to run any action.
-
-The easiest way to do so is to put the whole cluster in maintenance mode : 
-
-```bash
-# pcs property set maintenance-mode=true
-# pcs property set maintenance-mode=false
-```
-
-Once out of maintenance mode, the cluster manager will expect to find the resources in the same state they were before the maintenance.
-
------
-
-## [](#swapping-master-and-slave-roles-between-nodes)Swapping master and slave roles between nodes
-
-```
-# pcs resource move --wait --master pgsql-ha server2
-Resource 'pgsql-ha' is master on node server2; slave on node server1.
-# pcs resource clear pgsql-ha
-```
-
-To move the resource, pcs sets an INFINITY constraint location for the master on the given node. You must clear this constraint to avoid unexpected location behavior using the `pcs resource clear` command.
-
------
-
 # [](#conclusion)Conclusion
-
-If your PostgreSQL instance is managed by Pacemaker, you should proceed to administration tasks with care.
-
-Pacemaker only uses `pg_ctl`, and as other tools behave differently, using them could lead to some unpredictable behavior, like an init script reporting that the instance is stopped when it is not.
-
-You should always manage your cluster using `pcs` (for RedHat and family). More information over it can be found here : https://www.mankier.com/8/pcs
 
 The quick guides provided with the PAF project are quite clear and complete. 
 
-If you wish to build service High Availability while keeping hands on your PostgreSQL configuration, PAF is definitively made for you !
+However, if your PostgreSQL instance is managed by Pacemaker, you should proceed to administration tasks with care.
+
+Pacemaker only uses `pg_ctl`, and as other tools behave differently, using them could lead to some unpredictable behavior, like an init script reporting that the instance is stopped when it is not.
+
+We'll see in a future article how to correctly manage the cluster.
