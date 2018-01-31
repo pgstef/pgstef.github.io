@@ -4,7 +4,7 @@ title: Introduction to PostgreSQL Automatic Failover
 draft: true
 ---
 
-“PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a resource agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
+“PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
 
 While the automatic failover influence the recovery time objective (RTO), the recovery point objective (RPO) is balanced by the PostgreSQL Streaming Replication.
 
@@ -22,17 +22,17 @@ To be able to manage a specific service resource, Pacemaker interact with it thr
 
 PostgreSQL Automatic Failover (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent dedicated to PostgreSQL. Its original wish is to keep a clear limit between the Pacemaker administration and the PostgreSQL one, to keep things simple, documented and yet powerful.
 
-Once your PostgreSQL cluster built using internal streaming replication, PAF is able to expose to Pacemaker what is the current status of the PostgreSQL instance on each node: master, slave, stopped, catching up, etc. Should a failure occur on the master, Pacemaker will try to recover it by default. Should the failure be non-recoverable, PAF allows the slaves to be able to elect the best of them (the closest one to the old master) and promote it as the new master. All of this thanks to the robust, feature-full and most importantly experienced project: Pacemaker.
+Once your PostgreSQL cluster built using internal Streaming Replication, PAF is able to expose to Pacemaker what is the current status of the PostgreSQL instance on each node: master, slave, stopped, catching up, etc. Should a failure occur on the master, Pacemaker will try to recover it by default. Should the failure be non-recoverable, PAF allows the slaves to be able to elect the best of them (the closest one to the old master) and promote it as the new master. All of this thanks to the robust, feature-full and most importantly experienced project: Pacemaker.
 
 -----
 
 # [](#fencing)Fencing
 
-Fencing is one of the mandatory piece you need when building an high available cluster for your database.
+Fencing is one of the mandatory piece you need when building an highly available cluster for your database.
 
 It's the ability to isolate a node from the cluster.
 
-Should an issue happen where the master does not answer to the cluster, successful fencing is the only way to be sure what is its status : shutdown or not able to accept new work or touch data. It avoids countless situations where you end up with split brain scenarios or data corruption
+Should an issue happen where the master does not answer to the cluster, successful fencing is the only way to be sure what is its status: shutdown or not able to accept new work or touch data. It avoids countless situations where you end up with split brain scenarios or data corruption
 
 The documentation provides good practices and examples : http://clusterlabs.github.io/PAF/fencing.html
 
@@ -40,25 +40,23 @@ The documentation provides good practices and examples : http://clusterlabs.gith
 
 # [](#quick-start)Quick start
 
-The documentation provides a few quick starts : http://clusterlabs.github.io/PAF/documentation.html
+The documentation also provides a few quick starts : http://clusterlabs.github.io/PAF/documentation.html
 
-We'll here focus on the Pacemaker administration part and assume the PostgreSQL streaming replication is working and correctly configured.
+We'll here focus on the Pacemaker administration part and assume the PostgreSQL Streaming Replication is working and correctly configured.
 
 The resource agent requires the PostgreSQL instances to be already set up, ready to start and slaves ready to replicate. 
 
-Make sure to setup your PostgreSQL master on your preferred node to host the master : during the very first startup of the cluster, PAF detects the master based on its shutdown status.
+Make sure to setup your PostgreSQL master on your preferred node to host the master: during the very first startup of the cluster, PAF detects the master based on its shutdown status.
 
 Moreover, it requires a `recovery.conf` template ready to use. 
 
-You can create a `recovery.conf` file suitable to your needs, the only requirements are :
+You can create a `recovery.conf` file suitable to your needs, the only requirements are:
 
 - have standby_mode = on
 - have recovery_target_timeline = 'latest'
 - a primary_conninfo with an application_name set to the node name
 
-In case you configure a virtual ip on the server hosting the master PostgreSQL instance, make sure each instance will not be able to replicate with itself (in the `pg_hba.conf`) ! 
-
-A scenario exists where the master IP address (called pgsql-vip in this post) will be on the same node than a standby for a very short lap of time.
+In case you configure a virtual IP (called pgsql-vip in this post) on the server hosting the master PostgreSQL instance, make sure each instance will not be able to replicate with itself (in the `pg_hba.conf`)! 
 
 -----
 
@@ -74,9 +72,9 @@ For this article, I created 2 VMs (CentOS 7), using qemu-kvm through the virt-ma
  2     server2                        running
 ```
 
-I also installed (from the PGDG repository) and set up a PostgreSQL 10 cluster with streaming replication between those 2 servers.
+I also installed (from the PGDG repository) and set up a PostgreSQL 10 cluster with Streaming Replication between those 2 servers.
 
-The `recovery.conf.pcmk` template contains :
+The `recovery.conf.pcmk` template contains:
 
 ```
 $ cat <<EOF > ~postgres/recovery.conf.pcmk
@@ -90,7 +88,7 @@ EOF
 
 ## [](#cluster-preparation)Pacemaker cluster preparation
 
-Pacemaker installation :
+Pacemaker installation:
 
 ```bash
 # yum install -y pacemaker resource-agents pcs fence-agents-all fence-agents-virsh
@@ -98,7 +96,7 @@ Pacemaker installation :
 
 We'll later create one fencing resource per node to fence. They are called fence_vm_xxx and use the fencing agent fence_virsh, allowing to power on or off a virtual machine using the virsh command through a ssh connexion to the hypervisor. You'll need to make sure your VMs are able to connect as root (it is possible to use a normal user with some more setup though) to your hypervisor.
 
-Install the latest PAF version, directly from the PGDG repository :
+Install the latest PAF version, directly from the PGDG repository:
 
 ```bash
 # yum install -y resource-agents-paf
@@ -125,7 +123,7 @@ It allows to create the cluster from command line, without editing configuration
 # systemctl start pcsd
 ```
 
-Now, authenticate each node to the other ones using the following command :
+Now, authenticate each node to the other ones using the following command:
 
 ```
 # pcs cluster auth server1 server2 -u hacluster
@@ -134,7 +132,7 @@ server1: Authorized
 server2: Authorized
 ```
 
-Create and start the cluster : 
+Create and start the cluster: 
 
 ```
 # pcs cluster setup --name cluster_pgsql server1 server2
@@ -163,7 +161,7 @@ server2: Starting Cluster...
 server1: Starting Cluster...
 ```
 
-Check the cluster status :
+Check the cluster status:
 
 ```
 # pcs status
@@ -189,14 +187,14 @@ Daemon Status:
 
 Now the cluster run, let’s start with some basic setup of the cluster. 
 
-Run the following command from one node only (the cluster takes care of broadcasting the configuration on all nodes) :
+Run the following command from one node only (the cluster takes care of broadcasting the configuration on all nodes):
 
 ```bash
 # pcs resource defaults migration-threshold=5
 # pcs resource defaults resource-stickiness=10
 ```
 
-This sets two default values for resources we create in the next chapter :
+This sets two default values for resources we create in the next chapter:
 
 - migration-threshold : this controls how many time the cluster tries to recover a resource on the same node before moving it on another one.
 - resource-stickiness : adds a sticky score for the resource on its current node. It helps avoiding a resource move back and forth between nodes where it has the same score.
@@ -222,12 +220,12 @@ Note that in the port argument of the following commands, server[1-2] are the na
     ipaddr="192.168.122.1" login="root" port="server2"            \
     action="off" identity_file="/root/.ssh/id_rsa"
 
-pcs -f cluster1.xml constraint location fence_vm_server1 avoids server1=INFINITY
-pcs -f cluster1.xml constraint location fence_vm_server2 avoids server2=INFINITY
-pcs cluster cib-push cluster1.xml
+# pcs -f cluster1.xml constraint location fence_vm_server1 avoids server1=INFINITY
+# pcs -f cluster1.xml constraint location fence_vm_server2 avoids server2=INFINITY
+# pcs cluster cib-push cluster1.xml
 ```
 
-Check the cluster status :
+Check the cluster status:
 
 ```
 # pcs status
@@ -259,15 +257,15 @@ Daemon Status:
 
 Now the fencing is working, we can add all other resources and constraints all together in the same time. 
 
-Create a new offline CIB :
+Create a new offline CIB:
 
 ```
-pcs cluster cib cluster1.xml
+# pcs cluster cib cluster1.xml
 ```
 
 We'll create three resources : `pgsqld`, `pgsql-ha`, and `pgsql-master-ip`.
 
-The `pgsqld` defines the properties of a PostgreSQL instance : where it is located, where are its binaries, its configuration files, how to monitor it, and so on.
+The `pgsqld` defines the properties of a PostgreSQL instance: where it is located, where are its binaries, its configuration files, how to monitor it, and so on.
 
 ```bash
 # pcs -f cluster1.xml resource create pgsqld ocf:heartbeat:pgsqlms \
@@ -282,7 +280,7 @@ The `pgsqld` defines the properties of a PostgreSQL instance : where it is locat
     op notify timeout=60s
 ```
 
-The `pgsql-ha` resource controls all the PostgreSQL instances `pgsqld` in your cluster, decides where the primary is promoted and where the standbys are started.
+The `pgsql-ha` resource controls all the `pgsqld` PostgreSQL instances in your cluster, decides where the primary is promoted and where the standby is started.
 
 ```bash
 # pcs -f cluster1.xml resource master pgsql-ha pgsqld notify=true
@@ -295,7 +293,7 @@ The `pgsql-master-ip` resource controls the pgsql-vip (192.168.122.50) IP addres
     ip=192.168.122.50 cidr_netmask=24 op monitor interval=10s
 ```
 
-We now define the collocation between `pgsql-ha` and `pgsql-master-ip`. The start/stop and promote/demote order for these resources must be asymmetrical : we MUST keep the master IP on the master during its demote process so the standbies receive everything during the master shutdown.
+We now define the collocation between `pgsql-ha` and `pgsql-master-ip`. The start/stop and promote/demote order for these resources must be asymmetrical: we MUST keep the master IP on the master during its demote process so the standby receive everything during the master shutdown.
 
 ```bash
 # pcs -f cluster1.xml constraint colocation add pgsql-master-ip with master pgsql-ha INFINITY
@@ -303,13 +301,13 @@ We now define the collocation between `pgsql-ha` and `pgsql-master-ip`. The star
 # pcs -f cluster1.xml constraint order demote pgsql-ha then stop pgsql-master-ip symmetrical=false kind=Mandatory
 ```
 
-We can now push our Cluster Information Base (aka. CIB) to the cluster, which will start all the magic stuff :
+We can now push our Cluster Information Base (aka. CIB) to the cluster, which will start all the magic stuff:
 
 ```bash
 # pcs cluster cib-push cluster1.xml
 ```
 
-Check the cluster status :
+Check the cluster status:
 
 ```bash
 # pcs status
@@ -339,7 +337,7 @@ Daemon Status:
   pcsd: active/enabled
 ```
 
-And finally, try to connect :
+And finally, try to connect:
 
 ```
 $ psql -h pgsql-vip
