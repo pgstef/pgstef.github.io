@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Introduction to PostgreSQL Automatic Failover
-draft: true
 ---
 
 As described by Magnus Hagander during his great talk about "PostgreSQL Replication in 2018" at the last FOSDEM event, “PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
@@ -77,7 +76,7 @@ The `recovery.conf.pcmk` template contains:
 ```
 $ cat ~postgres/recovery.conf.pcmk
 standby_mode = on
-primary_conninfo = 'host=pgsql-vip application_name=$(hostname -s)'
+primary_conninfo = 'host=pgsql-vip application_name=server2'
 recovery_target_timeline = 'latest'
 ```
 
@@ -375,6 +374,8 @@ postgres=# SELECT pg_is_in_recovery();
 # [](#conclusion)Conclusion
 
 While the automatic failover influence the recovery time objective (RTO), the recovery point objective (RPO) is balanced by the PostgreSQL Streaming Replication.
+
+To make this post as simple as possible, it shows how to build a "2-nodes" cluster. For production, you should consider having at least a "3-nodes" cluster.
 
 The quick guides provided with the PAF project are quite clear and complete. 
 
