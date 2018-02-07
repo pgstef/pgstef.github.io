@@ -3,7 +3,7 @@ layout: post
 title: Introduction to PostgreSQL Automatic Failover
 ---
 
-As described by Magnus Hagander during his great talk about "PostgreSQL Replication in 2018" at the last FOSDEM event, “PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
+As described by Magnus Hagander during his great talk about "PostgreSQL Replication in 2018" at the last FOSDEM event, PAF (aka. “PostgreSQL Automatic Failover” : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
 
 If you have good system skills and wish a reliable way of having automatic failover, you should definitively consider using PAF!
 
