@@ -4,9 +4,9 @@ title: Introduction to PostgreSQL Automatic Failover
 draft: true
 ---
 
-“PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
+As described by Magnus Hagander during his great talk about "PostgreSQL Replication in 2018" at the last FOSDEM event, “PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
 
-While the automatic failover influence the recovery time objective (RTO), the recovery point objective (RPO) is balanced by the PostgreSQL Streaming Replication.
+If you have good system skills and wish a reliable way of having automatic failover, you should definitively consider using PAF!
 
 Let's see in this post how to quickly install it.
 
@@ -16,7 +16,7 @@ Let's see in this post how to quickly install it.
 
 # [](#introduction)Introduction
 
-Pacemaker is nowadays the industry reference for High Availability. The Pacemaker + Corosync stack is able to detect failures on various services and automatically decide to failover the failing resource to another node when possible.
+Pacemaker is nowadays one of the best references for High Availability. The Pacemaker + Corosync stack is able to detect failures on various services and automatically decide to failover the failing resource to another node when possible.
 
 To be able to manage a specific service resource, Pacemaker interact with it through a so-called "Resource Agent". A Resource Agent is an external program that abstracts the service it provides and present a consistent view to the cluster.
 
@@ -34,7 +34,7 @@ It's the ability to isolate a node from the cluster.
 
 Should an issue happen where the master does not answer to the cluster, successful fencing is the only way to be sure what is its status: shutdown or not able to accept new work or touch data. It avoids countless situations where you end up with split brain scenarios or data corruption
 
-The documentation provides good practices and examples : http://clusterlabs.github.io/PAF/fencing.html
+The documentation provides best practices and examples : http://clusterlabs.github.io/PAF/fencing.html
 
 -----
 
@@ -45,8 +45,6 @@ The documentation also provides a few quick starts : http://clusterlabs.github.i
 We'll here focus on the Pacemaker administration part and assume the PostgreSQL Streaming Replication is working and correctly configured.
 
 The resource agent requires the PostgreSQL instances to be already set up, ready to start and slaves ready to replicate. 
-
-Make sure to setup your PostgreSQL master on your preferred node to host the master: during the very first startup of the cluster, PAF detects the master based on its shutdown status.
 
 Moreover, it requires a `recovery.conf` template ready to use. 
 
@@ -77,11 +75,10 @@ I also installed (from the PGDG repository) and set up a PostgreSQL 10 cluster w
 The `recovery.conf.pcmk` template contains:
 
 ```
-$ cat <<EOF > ~postgres/recovery.conf.pcmk
+$ cat ~postgres/recovery.conf.pcmk
 standby_mode = on
 primary_conninfo = 'host=pgsql-vip application_name=$(hostname -s)'
 recovery_target_timeline = 'latest'
-EOF
 ```
 
 -----
@@ -168,7 +165,7 @@ Check the cluster status:
 Cluster name: cluster_pgsql
 WARNING: no stonith devices and stonith-enabled is not false
 Stack: corosync
-Current DC: server2 (version 1.1.16-12.el7_4.5-94ff4df) - partition with quorum
+Current DC: server1 (version 1.1.16-12.el7_4.5-94ff4df) - partition with quorum
 Last updated: ...
 Last change: ... by hacluster via crmd on server2
 
@@ -190,14 +187,14 @@ Now the cluster run, let’s start with some basic setup of the cluster.
 Run the following command from one node only (the cluster takes care of broadcasting the configuration on all nodes):
 
 ```bash
-# pcs resource defaults migration-threshold=5
+# pcs resource defaults migration-threshold=3
 # pcs resource defaults resource-stickiness=10
 ```
 
-This sets two default values for resources we create in the next chapter:
+This sets two default values for resources we'll create in the next chapter:
 
-- migration-threshold : this controls how many time the cluster tries to recover a resource on the same node before moving it on another one.
-- resource-stickiness : adds a sticky score for the resource on its current node. It helps avoiding a resource move back and forth between nodes where it has the same score.
+- migration-threshold: this controls how many time the cluster tries to recover a resource on the same node before moving it on another one.
+- resource-stickiness: adds a sticky score for the resource on its current node. It helps avoiding a resource move back and forth between nodes where it has the same score.
 
 -----
 
@@ -205,7 +202,7 @@ This sets two default values for resources we create in the next chapter:
 
 We can now create one STONITH resource for each node. Each fencing resource will not be allowed to run on the node it is supposed to fence. 
 
-Note that in the port argument of the following commands, server[1-2] are the names of the virtual machines as known by libvirtd side and 192.168.122.1 is the ip of the qemu-kvm hypervisor.
+Note that in the port argument of the following commands, server[1-2] are the names of the virtual machines as known by libvirtd side and 192.168.122.1 is the IP of the qemu-kvm hypervisor.
 
 ```bash
 # pcs cluster cib cluster1.xml
@@ -213,12 +210,12 @@ Note that in the port argument of the following commands, server[1-2] are the na
 # pcs -f cluster1.xml stonith create fence_vm_server1 fence_virsh \
     pcmk_host_check="static-list" pcmk_host_list="server1"        \
     ipaddr="192.168.122.1" login="root" port="server1"            \
-    action="off" identity_file="/root/.ssh/id_rsa"
+    action="reboot" identity_file="/root/.ssh/id_rsa"
 
 # pcs -f cluster1.xml stonith create fence_vm_server2 fence_virsh \
     pcmk_host_check="static-list" pcmk_host_list="server2"        \
     ipaddr="192.168.122.1" login="root" port="server2"            \
-    action="off" identity_file="/root/.ssh/id_rsa"
+    action="reboot" identity_file="/root/.ssh/id_rsa"
 
 # pcs -f cluster1.xml constraint location fence_vm_server1 avoids server1=INFINITY
 # pcs -f cluster1.xml constraint location fence_vm_server2 avoids server2=INFINITY
@@ -255,7 +252,7 @@ Daemon Status:
 
 ## [](#cluster-resources)Cluster resources creation
 
-Now the fencing is working, we can add all other resources and constraints all together in the same time. 
+Now that the fencing is working, we can add all other resources and constraints all together in the same time. 
 
 Create a new offline CIB:
 
@@ -263,7 +260,7 @@ Create a new offline CIB:
 # pcs cluster cib cluster1.xml
 ```
 
-We'll create three resources : `pgsqld`, `pgsql-ha`, and `pgsql-master-ip`.
+We'll create three resources: `pgsqld`, `pgsql-ha`, and `pgsql-master-ip`.
 
 The `pgsqld` defines the properties of a PostgreSQL instance: where it is located, where are its binaries, its configuration files, how to monitor it, and so on.
 
@@ -376,6 +373,8 @@ postgres=# SELECT pg_is_in_recovery();
 -----
 
 # [](#conclusion)Conclusion
+
+While the automatic failover influence the recovery time objective (RTO), the recovery point objective (RPO) is balanced by the PostgreSQL Streaming Replication.
 
 The quick guides provided with the PAF project are quite clear and complete. 
 
