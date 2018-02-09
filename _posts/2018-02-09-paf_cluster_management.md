@@ -1,10 +1,9 @@
 ---
 layout: post
 title: PAF cluster management
-draft: true
 ---
 
-“PostgreSQL Automatic Failover” (aka. PAF : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
+PAF (aka. “PostgreSQL Automatic Failover” : http://clusterlabs.github.io/PAF/) is a Resource Agent providing service High Availability for PostgreSQL, based on Pacemaker and Corosync.
 
 In the previous post, we saw how to quickly install it. Let's see now how to manage it.
 
@@ -38,7 +37,7 @@ To completely stop the cluster (and its resources), first disable the `pgsql-ha`
 # pcs resource disable pgsql-ha
 ```
 
-Then, stop the cluster on all nodes (one by one or at once):
+Then, stop the cluster on all nodes (one by one or all at once):
 
 ```bash
 # pcs cluster stop --all
