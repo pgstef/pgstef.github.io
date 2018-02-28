@@ -28,12 +28,24 @@ If you wish to place your data in (e.g.) /pgdata/10/data, create the directory w
 Then, customize the systemd service:
 
 ```bash
-# cat <<EOF > /etc/systemd/system/postgresql-10.service
-.include /lib/systemd/system/postgresql-10.service
+# systemctl edit postgresql-10.service
+```
 
+Add the following content:
+
+```bash
 [Service]
 Environment=PGDATA=/pgdata/10/data
-EOF
+```
+
+This will create a `/etc/systemd/system/postgresql-10.service.d/override.conf` file which will be merged with the original service file.
+
+To check its content:
+
+```bash
+# cat /etc/systemd/system/postgresql-10.service.d/override.conf
+[Service]
+Environment=PGDATA=/pgdata/10/data
 ```
 
 Reload systemd:
@@ -56,3 +68,5 @@ Start and enable the service:
 ```
 
 And Voila! It's just that simple.
+
+This article has been improved thanks to @darixzen: https://discourse.nordisch.org/t/epmd-and-systemd/434.
