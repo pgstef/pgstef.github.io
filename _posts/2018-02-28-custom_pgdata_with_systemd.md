@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Custom PGDATA with systemd
-draft: true
 ---
 
 By default, on CentOS 7, the PostgreSQL v10 data directory is located in /var/lib/pgsql/10/data.
