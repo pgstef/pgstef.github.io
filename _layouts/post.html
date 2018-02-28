@@ -9,7 +9,7 @@ layout: default
 <article>
 	<div class="col-sm-10">
 		<span class="post-date">
-			Published on <strong>{{ page.date | date: "%d/%m/%Y" }} </strong> by {{ site.name }}.   
+			Published on <strong>{{ page.date | date_to_rfc822 }} </strong> by {{ site.name }}.   
 		</span>
 	
 		<div class="article_body">
