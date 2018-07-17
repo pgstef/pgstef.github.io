@@ -1,18 +1,17 @@
 ---
 layout: post
 title: Back from PGDay Amsterdam
-draft: true
 ---
 
-(PGDay Amsterdam)[https://twitter.com/PGDayAmsterdam] regrouped more than 90 PostgreSQL fans (according to Devrim) on 12 July 2018. It was for me a really nice day and I'd like to share it with you.
+[PGDay Amsterdam](https://twitter.com/PGDayAmsterdam) regrouped more than 90 PostgreSQL fans (according to Devrim) on 12 July 2018. It was for me a really nice day and I'd like to share it with you.
 
 <!--MORE-->
 
 -----
 
-User feedbacks, PostgreSQL internals, tools,... The topics covered were pretty wide.
+User feedbacks, PostgreSQL internals, tools,... the topics covered were pretty wide.
 
-Jan Karremans first started with **Why I picked Postgres over Oracle?**. 
+Jan Karremans first started with **Why I picked Postgres over Oracle?**
 
 Jan shared with us some of the lessons he learned during his journey:
 * weigh your needs (what do you need? what does your project need?);
@@ -21,7 +20,7 @@ Jan shared with us some of the lessons he learned during his journey:
 
 Inspired by Dimitri Fontaine and his *Mastering PostgreSQL in Application Development* book, Oleksii Kliukin presented next **Ace it with ACID: Postgres transactions for fun and profit**.
 
-Building a sample application to find his bike in Amsterdam, Oleksii explained what ACID means. MVCC, isolation levels, transactional DDL,... Complete and local, great talk!
+Building a sample application to find his bike in Amsterdam, Oleksii explained what ACID means. MVCC, isolation levels, transactional DDL,... complete and local, great talk!
 
 Daniel Westermann then tried to summarize **What we already know about PostgreSQL 11**. 
 
@@ -52,14 +51,14 @@ Then, well...
 
 ...
 
-My turn : (**Save your data with pgBackRest**)[{{ site.url }}/talks/en/20180712_pgdayAmsterdam_pgBackRest.html.gz].
+My turn : [**Save your data with pgBackRest**]({{ site.url }}/talks/en/20180712_pgdayAmsterdam_pgBackRest.html.gz).
 
 Short introduction of this **A.W.E.S.O.M.E!** backup and restore system. For a more detailed example, there's actually another post on this blog which talk about it :-)
 
 Jeroen de Graaff told us, after lunch, the **Step-by-step implementation of PostgreSQL at Rijkswaterstaat**. Very interesting user feedback in data-science where PostgreSQL helps to manage ships harbouring in the Netherlands!
 
 Jeroen shared with us some lessons learned:
-* work agile, apply what as value ASAP;
+* work agile, apply what has value ASAP;
 * knowledge exchange is very valuable;
 * PostgreSQL is a robust and reliable data platform.
 
@@ -95,6 +94,6 @@ Finally, Bruce Momjian tried to answer to the **Will Postgres Live Forever** que
 
 > Postgres will live, as long as it is useful.
 
-And... voilà! A long day full of very interesting talks. 
+And Voila! A long day full of very interesting talks. 
 
 Once again, thanks to the organizers, speakers and people there for making this event a reality!
