@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Réplication et sauvegarde PITR avec pitrery
-permalink: /talks/
+permalink: /2018-07-30-replication_et_sauvegarde_pitr_avec_pitrery/
 ---
 
 # Configurer la réplication
