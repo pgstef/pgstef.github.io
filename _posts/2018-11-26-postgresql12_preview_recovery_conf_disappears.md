@@ -1,12 +1,10 @@
 ---
 layout: post
 title: PostgreSQL 12 preview - recovery.conf disappears
-draft: true
 ---
 
-To be able in the future to have (for example) more dynamic reconfiguration 
-around recovery (changing the primary_conninfo or other settings at runtime,...), 
-PostgreSQL needs the infrastructure to deal with that. 
+PostgreSQL needs some infrastructure changes to have a more dynamic reconfiguration 
+around recovery, eg. to change the primary_conninfo at runtime.
 
 The first step, mostly to avoid having to duplicate the GUC logic, results on 
 the following patch.
@@ -14,8 +12,6 @@ the following patch.
 <!--MORE-->
 
 -----
-
-# [](#introduction)Introduction
 
 On 25th of November 2018, Peter Eisentraut committed 
 [Integrate recovery.conf into postgresql.conf](https://git.postgresql.org/gitweb/?p=postgresql.git;a=commitdiff;h=2dedf4d9a899b36d1a8ed29be5efbd1b31a8fe85):
@@ -62,7 +58,7 @@ $ echo "archive_command = 'cp %p /var/lib/pgsql/11/archives/%f'" \
 # systemctl start postgresql-11.service
 ```
 
-Check if the archiver process is working:
+Check that the archiver process is running:
 
 ```
 $ psql -c "SELECT pg_switch_wal();"
@@ -103,7 +99,7 @@ $ echo 'port = 5433' >> /var/lib/pgsql/11/replicated_data/postgresql.conf
 $ /usr/pgsql-11/bin/pg_ctl -D /var/lib/pgsql/11/replicated_data/ start
 ```
 
-If the replication is correctly setup, you should see those processes:
+If the replication setup is correct, you should see those processes:
 
 ```
 postgres 10950     1  ... /usr/pgsql-11/bin/postmaster -D /var/lib/pgsql/11/data/
@@ -129,7 +125,7 @@ $ /usr/pgsql-11/bin/pg_ctl -D /var/lib/pgsql/11/replicated_data stop
 
 ## [](#recovery-conf-explanation)Recovery.conf explanation
 
-What's important here are those parameters:
+These parameters are important:
 
 * standby_mode
 
@@ -215,7 +211,7 @@ $ echo 'port = 5433' >> /var/lib/pgsql/12/replicated_data/postgresql.conf
 ```
 
 Here comes the part modified by this patch. Most of the parameters for the 
-recovery and standby mode has been moved directly to the main configuration file.
+recovery and standby mode are now in the main configuration file.
 
 ```
 $ echo "primary_conninfo = 'port=5432'" \
@@ -226,11 +222,10 @@ $ echo "recovery_target_timeline = 'latest'" \
 >> /var/lib/pgsql/12/replicated_data/postgresql.conf
 ```
 
-If you simply want to start a recovery process (f.e. restore a backup), you 
+If you simply want to start a recovery process (eg. restore a backup), you 
 need to create a file named **recovery.signal** in the data directory.
 
-Here, we want to set up a standby server. We'll then need to create a file 
-named **standby.signal**.
+Here, we want to set up a standby server, so we need a file named **standby.signal**.
 
 ```
 $ touch /var/lib/pgsql/12/replicated_data/standby.signal
@@ -261,7 +256,7 @@ $ /usr/local/pgsql/bin/pg_ctl -D /var/lib/pgsql/12/data_build stop
 ## [](#pgbasebackup-behavior)pg_basebackup behavior
 
 In version 11, the **-R, --write-recovery-conf** options write the recovery.conf 
-file. This patch change this behavior by appending settings to postgresql.auto.conf.
+file. This patch changes this behavior by appending settings to postgresql.auto.conf.
 
 This part is actually raising some concerns in the community. 
 For example, after a complete restore, the recovery.conf file was moved to 
