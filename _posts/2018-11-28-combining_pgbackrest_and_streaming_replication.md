@@ -1,19 +1,18 @@
 ---
 layout: post
 title: Combining pgBackRest and Streaming Replication
-draft: true
 ---
 
-pgBackRest (http://pgbackrest.org/) is a well-known powerful backup and 
+[pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
 restore tool. It offers a lot of possibilities.
 
 While pg_basebackup is commonly used to setup the initial database copy for 
-initiating a Streaming Replication, it could be interesting to reuse a previous 
+the Streaming Replication, it could be interesting to reuse a previous 
 database backup (eg. taken with pgBackRest) to perform this initial copy.
 
-Furthermore, the --delta option provided by pgBackRest can help us to 
-re-synchronize an old secondary server without having to build it from scratch 
-again.
+Furthermore, the `--delta` option provided by pgBackRest can help us to 
+re-synchronize an old secondary server without having to rebuild it from 
+scratch.
 
 To reduce the load on the primary server during a backup, pgBackRest even 
 allows to take backups from a standby server.
@@ -71,7 +70,7 @@ Commands:
 Use 'pgbackrest help [command]' for more information.
 ```
 
-Create a basic PostgreSQL cluster to backup on primary:
+Create a basic PostgreSQL cluster on primary:
 
 ```bash
 $ sudo /usr/pgsql-11/bin/postgresql-11-setup initdb
@@ -81,7 +80,7 @@ $ sudo systemctl start postgresql-11
 
 -----
 
-## Setup a shared repository between the hosts
+## [](#nfs-share)Setup a shared repository between the hosts
 
 To be able to share the backups between the hosts, we'll here create a nfs 
 export from secondary and mount it on primary.
@@ -116,8 +115,7 @@ $ sudo mount /mnt/backups/
 The storage of your backups is completely up to you. The requirement here is 
 to have that storage available on both servers. 
 
-If needed, you might even encrypt your repository if you decide to use a 
-central storage place. To do that, follow the 
+If needed, you might even encrypt your repository. To do that, follow the 
 [documentation](https://pgbackrest.org/user-guide.html#quickstart/configure-encryption).
 
 -----
@@ -127,7 +125,7 @@ central storage place. To do that, follow the
 By default, the configuration file is `/etc/pgbackrest.conf`. Let's make a copy:
 
 ```bash
-# cp /etc/pgbackrest.conf /etc/pgbackrest.conf.bck
+$ sudo cp /etc/pgbackrest.conf /etc/pgbackrest.conf.bck
 ```
 
 Update the primary configuration:
@@ -170,8 +168,8 @@ P00   INFO: check command begin 2.07: -
 			--pg1-path=/var/lib/pgsql/11/data --repo1-path=/mnt/backups 
 			--stanza=mycluster
 P00   INFO: WAL segment 000000010000000000000001 successfully stored in the 
-			archive at '/mnt/backups/archive/mycluster/11-1/0000000100000000/
-			000000010000000000000001-ee7d07fc95b699231dac05d3b5c9f4b1dda22488.gz'
+	archive at '/mnt/backups/archive/mycluster/11-1/0000000100000000/
+	000000010000000000000001-ee7d07fc95b699231dac05d3b5c9f4b1dda22488.gz'
 P00   INFO: check command end: completed successfully
 ```
 
@@ -188,9 +186,9 @@ $ sudo -iu postgres /usr/pgsql-11/bin/pgbench -i -s 100 test
 
 -----
 
-# []()Prepare the servers for Streaming Replication
+# Prepare the servers for Streaming Replication
 
-On primary server, add to postgresql.conf:
+On primary server, add to `postgresql.conf`:
 
 ```
 listen_addresses = '*'
@@ -203,7 +201,7 @@ $ sudo -iu postgres psql
 postgres=# CREATE ROLE replic_user WITH LOGIN REPLICATION PASSWORD 'mypwd';
 ```
 
-Configure pg_hba.conf:
+Configure `pg_hba.conf`:
 
 ```
 host replication replic_user secondary md5
@@ -243,7 +241,8 @@ P00   INFO: execute non-exclusive pg_start_backup() with label "...":
 P00   INFO: backup start archive = 000000010000000000000057, lsn = 0/57000028
 ...
 P00   INFO: full backup size = 1.4GB
-P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
+P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments 
+        to archive
 P00   INFO: backup stop archive = 000000010000000000000057, lsn = 0/57000168
 P00   INFO: new backup label = 20181127-152908F
 P00   INFO: backup command end: completed successfully
@@ -294,23 +293,23 @@ Restore the backup taken from the primary server:
 ```bash
 $ sudo -u postgres pgbackrest --stanza=mycluster --delta restore
 P00   INFO: restore command begin 2.07: 
-			--delta --log-level-console=info --log-level-file=debug 
-			--pg1-path=/var/lib/pgsql/11/data --process-max=2 
-			--recovery-option=standby_mode=on 
-			--recovery-option="primary_conninfo=host=primary user=replic_user" 
-			--recovery-option=recovery_target_timeline=latest 
-			--repo1-path=/mnt/backups --stanza=mycluster
+		--delta --log-level-console=info --log-level-file=debug 
+		--pg1-path=/var/lib/pgsql/11/data --process-max=2 
+		--recovery-option=standby_mode=on 
+		--recovery-option="primary_conninfo=host=primary user=replic_user" 
+		--recovery-option=recovery_target_timeline=latest 
+		--repo1-path=/mnt/backups --stanza=mycluster
 P00   INFO: restore backup set 20181127-152908F
 P00   INFO: remove invalid files/paths/links from /var/lib/pgsql/11/data
 ...
 P00   INFO: write /var/lib/pgsql/11/data/recovery.conf
 P00   INFO: restore global/pg_control 
-			(performed last to ensure aborted restores cannot be started)
+		(performed last to ensure aborted restores cannot be started)
 P00   INFO: restore command end: completed successfully
 ```
 
 Actually, the `recovery-option` parameters allow pgBackRest to configure the
-recovery.conf file:
+`recovery.conf` file:
 
 ```bash
 $ cat /var/lib/pgsql/11/data/recovery.conf 
@@ -346,12 +345,12 @@ recovery as safety net.
 
 pgBackRest can perform backups on a standby server instead of the primary. 
 Both the primary and secondary databases configuration are required, even if 
-the vast majority of the files will be copied from the secondary to reduce 
-load on the primary. 
+the majority of the files will be copied from the secondary to reduce load 
+on the primary. 
 
 To do so, adjust the `/etc/pgbackrest.conf` file on secondary:
 
-```
+```ini
 [global]
 repo1-path=/mnt/backups
 repo1-retention-full=1
@@ -372,7 +371,7 @@ recovery-option=recovery_target_timeline=latest
 
 Options added are:
 
-  * delta: to allow delta backup and restore without using --delta
+  * delta: to allow delta backup and restore without using `--delta`
   * backup-standby
   * pg1-host and pg1-path
 
@@ -382,7 +381,8 @@ Perform a backup from secondary:
 ```bash
 $ sudo -u postgres pgbackrest --stanza=mycluster --type=full backup
 P00   INFO: backup command begin 2.07: 
-		--backup-standby --delta --log-level-console=info --log-level-file=debug 
+		--backup-standby --delta --log-level-console=info 
+        --log-level-file=debug 
 		--pg1-host=primary --pg1-path=/var/lib/pgsql/11/data 
 		--pg2-path=/var/lib/pgsql/11/data --process-max=2 
 		--repo1-path=/mnt/backups --repo1-retention-full=1 
@@ -394,7 +394,8 @@ P00   INFO: wait for replay on the standby to reach 0/5B000028
 P00   INFO: replay on the standby reached 0/5B0000D0, checkpoint 0/5B000060
 ...
 P00   INFO: full backup size = 1.4GB
-P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
+P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments 
+        to archive
 P00   INFO: backup stop archive = 00000001000000000000005B, lsn = 0/5B000130
 P00   INFO: new backup label = 20181127-164924F
 P00   INFO: backup command end: completed successfully
@@ -408,7 +409,8 @@ Even incremental backups can be taken:
 ```bash
 $ sudo -u postgres pgbackrest --stanza=mycluster --type=incr backup
 P00   INFO: backup command begin 2.07: 
-		--backup-standby --delta --log-level-console=info --log-level-file=debug 
+		--backup-standby --delta --log-level-console=info 
+        --log-level-file=debug 
 		--pg1-host=primary --pg1-path=/var/lib/pgsql/11/data 
 		--pg2-path=/var/lib/pgsql/11/data --process-max=2 
 		--repo1-path=/mnt/backups --repo1-retention-full=1 
@@ -421,7 +423,8 @@ P00   INFO: wait for replay on the standby to reach 0/5D000028
 P00   INFO: replay on the standby reached 0/5D0000D0, checkpoint 0/5D000060
 ...
 P00   INFO: incr backup size = 1.4GB
-P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
+P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments 
+        to archive
 P00   INFO: backup stop archive = 00000001000000000000005D, lsn = 0/5D000130
 P00   INFO: new backup label = 20181127-164924F_20181127-165743I
 P00   INFO: backup command end: completed successfully
@@ -434,7 +437,8 @@ stanza: mycluster
     cipher: none
 
     db (current)
-        wal archive min/max (11-1): 00000001000000000000005B / 00000001000000000000005D
+        wal archive min/max (11-1): 
+            00000001000000000000005B / 00000001000000000000005D
 
         full backup: 20181127-164924F
             timestamp start/stop: 2018-11-27 16:49:24 / 2018-11-27 16:50:10
@@ -456,3 +460,9 @@ stanza: mycluster
 
 pgBackRest offers a lot of possibilities. We've seen in this post some tips to 
 use in addition to Streaming Replication.
+
+We've also seen in previous posts that changes can sometimes happen in 
+PostgreSQL itself (eg. integrate recovery.conf into postgresql.conf). 
+
+Using a tool supported by the community rather than your own script will also 
+help you keep compatibility with those changes.
