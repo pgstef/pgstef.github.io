@@ -350,7 +350,11 @@ Both the primary and secondary databases configuration are required, even if
 the majority of the files will be copied from the secondary to reduce load 
 on the primary. 
 
-To do so, adjust the `/etc/pgbackrest.conf` file on secondary:
+**_Remark:_** To do so, you need to setup a trusted SSH communication between the 
+hosts. You can more information about this step in the previous post 
+"introduction to pgBackRest", published on 2018-01-04.
+
+Adjust the `/etc/pgbackrest.conf` file on secondary:
 
 ```ini
 [global]
