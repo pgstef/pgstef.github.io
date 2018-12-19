@@ -100,7 +100,7 @@ Create the backup repository and export it:
 ```bash
 $ sudo mkdir /mnt/backups
 $ sudo chown postgres: /mnt/backups/
-$ sudo echo "/mnt/backups primary(rw,sync,no_root_squash)" >> /etc/exports
+$ sudo sh -c 'echo "/mnt/backups primary(rw,sync,no_root_squash)" >> /etc/exports'
 $ sudo exportfs -a
 ```
 
@@ -108,7 +108,9 @@ Install nfs client and mount the shared repository on primary:
 
 ```bash
 $ sudo yum -y install nfs-utils
-$ sudo echo "secondary:/mnt/backups /mnt/backups nfs rw,sync,hard,intr 0 0" >> /etc/fstab
+$ sudo mkdir /mnt/backups
+$ sudo chown postgres: /mnt/backups/
+$ sudo sh -c 'echo "secondary:/mnt/backups /mnt/backups nfs rw,sync,hard,intr 0 0" >> /etc/fstab'
 $ sudo mount /mnt/backups/
 ```
 
