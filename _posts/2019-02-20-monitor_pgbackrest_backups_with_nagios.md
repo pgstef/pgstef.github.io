@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Monitor pgBackRest backups with Nagios
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
