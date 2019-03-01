@@ -10,6 +10,13 @@ restore tool.
 While it works with a really simple configuration, a major version upgrade of 
 PostgreSQL has some impact on it.
 
+Immediately after upgrading PostgreSQL to a newer major version, the `pg-path` 
+for all pgBackRest configurations must be set to the new database location and 
+the `stanza-upgrade` command must be run.
+
+That command updates the stanza information to reflect the new cluster 
+information and, for example, allows to archiving process to work.
+
 <!--MORE-->
 
 -----
@@ -163,7 +170,7 @@ $ sudo systemctl stop postgresql-10
 $ sudo systemctl stop postgresql-11
 ```
 
-When you run pg_upgrade, you must provide the following information:
+When you run `pg_upgrade`, you must provide the following information:
 * the data directory for the old cluster
 * the data directory for the new cluster
 * the "bin" directory for the old version
@@ -217,8 +224,8 @@ Once PostgreSQL updated, update the pgBackRest configuration
 pg1-path=/var/lib/pgsql/11/data
 ```
 
-Before starting the new PostgreSQL cluster, the `stanza-upgrade` command must 
-be run:
+**Before starting the new PostgreSQL cluster, the `stanza-upgrade` command must 
+be run**:
 
 ```bash
 $ sudo -iu postgres pgbackrest --stanza=some_cool_stanza_name --no-online stanza-upgrade
