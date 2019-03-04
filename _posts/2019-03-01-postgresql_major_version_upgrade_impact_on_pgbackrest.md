@@ -1,7 +1,6 @@
 ---
 layout: post
 title: PostgreSQL major version upgrade impact on pgBackRest
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
