@@ -1,7 +1,6 @@
 ---
 layout: post
 title: pgBackRest archiving tricks
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
@@ -140,7 +139,7 @@ P00   INFO: backup command end: completed successfully
 
 -----
 
-# []pgBackRest configuration explanations
+# pgBackRest configuration explanations
 
 What the documentation says:
 
@@ -163,10 +162,10 @@ take advantage of parallelism.
 Maximum size of the PostgreSQL archive queue.
 
 After the limit is reached, the following will happen:
-  * pgBackRest will notify PostgreSQL that the WAL was successfully archived, then DROP IT.
+  * pgBackRest will notify PostgreSQL that the WAL was successfully archived, then **DROP IT**.
   * A warning will be output to the PostgreSQL log.
 
-If this occurs then the archive log stream will be interrupted and PITR will 
+If this occurs, then, the archive log stream will be interrupted and PITR will 
 not be possible past that point. **A new backup will be required to regain 
 full restore capability**.
 
@@ -193,7 +192,7 @@ failure) so the foreground process can quickly notify PostgreSQL.
 
 -----
 
-# []Test the archiving process
+# Test the archiving process
 
 Right after the backup, let's see what's in the spool directory:
 
@@ -232,7 +231,7 @@ $ ls /var/lib/pgbackrest/archive/some_cool_stanza_name/11-1/0000000100000000/
 
 -----
 
-## []Break it!
+## Break it!
 
 ```bash
 $ sudo chmod -R 500 /var/lib/pgbackrest/archive/some_cool_stanza_name/11-1/
@@ -282,7 +281,7 @@ $ ps -ef |grep postgres |grep archiver
 
 The archiver process is still blocked on the first fail.
 
-Generate the seventh fail:
+Generate the seventh failure:
 
 ```bash
 $ sudo -iu postgres psql -c "DROP TABLE IF EXISTS my_table; CREATE TABLE my_table(id int); SELECT pg_switch_wal();"
@@ -324,7 +323,7 @@ stanza: some_cool_stanza_name
 
 -----
 
-## []Repair it
+## Repair it
 
 ```bash
 $ sudo chmod -R 750 /var/lib/pgbackrest/archive/some_cool_stanza_name/11-1/
@@ -374,7 +373,7 @@ than 1.
 
 # [](#check_pgbackrest)check_pgbackrest 1.5
 
-The new 1.5 release, offers some interesting changes:
+The new 1.5 release offers some interesting changes:
   * Add `--debug` option to print some debug messages.
   * Add `ignore-archived-since` argument to ignore the archived WALs since the 
   provided interval.
@@ -390,7 +389,7 @@ $ wget https://raw.githubusercontent.com/dalibo/check_pgbackrest/REL1_5/check_pg
 $ chmod +x check_pgbackrest
 ```
 
-This installation procedure above is just a simple example.
+This installation procedure is just a simple example.
 
 Now, check the archives chain to know if there's something missing:
 
