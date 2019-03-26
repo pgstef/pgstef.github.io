@@ -371,7 +371,7 @@ than 1.
 
 -----
 
-# [](#check-pgbackrest-15)check_pgbackrest 1.5
+# [](#checkpgbackrest15)check_pgbackrest 1.5
 
 The new 1.5 release offers some interesting changes:
   * Add `--debug` option to print some debug messages.
