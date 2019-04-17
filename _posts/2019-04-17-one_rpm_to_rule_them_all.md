@@ -1,7 +1,6 @@
 ---
 layout: post
 title: One RPM to rule them all...
-draft: true
 ---
 
 As of 15 April 2019, there is only one repository RPM per distro, and it 
@@ -168,11 +167,11 @@ Total download size: 5.6 k
 
 # [](#eol)EOL'd releases
 
-While the yum repositories for EOL'd releases still exists, the repo rpms 
+While the yum repositories for EOL'd releases still exist, the repo rpms 
 usually found on `https://yum.postgresql.org/repopackages.php#pg93` aren't 
 available anymore: `404 - Not Found`.
 
-In case you would need to use the old repositories, you can add it manually:
+In case you need to use the old repositories, you can add it manually:
 
 ```bash
 # cat /etc/yum.repos.d/pgdg-93-centos.repo 
