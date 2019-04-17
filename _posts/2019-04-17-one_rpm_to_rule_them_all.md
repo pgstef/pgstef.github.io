@@ -172,6 +172,29 @@ While the yum repositories for EOL'd releases still exists, the repo rpms
 usually found on `https://yum.postgresql.org/repopackages.php#pg93` aren't 
 available anymore: `404 - Not Found`.
 
+In case you would need to use the old repositories, you can add it manually:
+
+```bash
+# cat /etc/yum.repos.d/pgdg-93-centos.repo 
+[pgdg93]
+name=PostgreSQL 9.3 $releasever - $basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/9.3/redhat/rhel-$releasever-$basearch
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PGDG-93
+
+[pgdg93-source]
+name=PostgreSQL 9.3 $releasever - $basearch - Source
+failovermethod=priority
+baseurl=https://download.postgresql.org/pub/repos/yum/srpms/9.3/redhat/rhel-$releasever-$basearch
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PGDG-93
+```
+
+Of course, since those releases are not supported anymore, you shouldn't have 
+to use it anymore...
+
 -----
 
 # [](#conclusion)Conclusion
