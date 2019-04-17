@@ -7,7 +7,7 @@ draft: true
 As of 15 April 2019, there is only one repository RPM per distro, and it 
 includes repository information for all available PostgreSQL releases. 
 
-This change, announced by Devrim on the `pgsql-pkg-yum` mailing list has some 
+This change, announced by Devrim on the `pgsql-pkg-yum` mailing list, has some 
 impacts.
 
 <!--MORE-->
@@ -16,7 +16,7 @@ impacts.
 
 # [](#announce)Announce
 
-The announce made by Devrim may be found [here](https://www.postgresql.org/message-id/flat/6f1e601300d575195d4f0d8a066ef4abf4c90c99.camel%40gunduz.org).
+The announce from Devrim may be found [here](https://www.postgresql.org/message-id/flat/6f1e601300d575195d4f0d8a066ef4abf4c90c99.camel%40gunduz.org).
 
   * Instead of having separate repo RPMs per PostgreSQL major version, we now
 have one single repo RPM that supports all supported PostgreSQL releases. 
@@ -71,7 +71,7 @@ Installed size: 6.8 k
 
 In fact, the new `pgdg-redhat-repo` rpm will be installed...
 
-The yum `.repo` file will now contain the urls of all supported PostgreSQL 
+The yum `.repo` file will now contains the urls of all supported PostgreSQL 
 releases:
 
 ```bash
@@ -84,6 +84,8 @@ releases:
 [pgdg94]
 ...
 ```
+
+The repositories for version 9.4 to 11 are enabled by default.
 
 The PostgreSQL packages are then easily reachable and you might even install 
 two different releases at once:
@@ -125,9 +127,9 @@ https://download.postgresql.org/pub/repos/yum/11/redhat/rhel-7-x86_64/pgdg-redha
 
 # [](#updates)Updates
 
-This change also has an impact on previous installations. 
+This change also has an impact on existing installations. 
 
-On, for example, a previous v11 installation:
+On, for example, an existing v11 installation:
 
 ```bash
 # cat /etc/yum.repos.d/pgdg-11-centos.repo |grep "\["
@@ -161,6 +163,14 @@ Install  1 Package
 
 Total download size: 5.6 k
 ```
+
+-----
+
+# [](#eol)EOL'd releases
+
+While the yum repositories for EOL'd releases still exists, the repo rpms 
+usually found on `https://yum.postgresql.org/repopackages.php#pg93` aren't 
+available anymore: `404 - Not Found`.
 
 -----
 
