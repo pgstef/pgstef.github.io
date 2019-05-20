@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Back from PGDay Belgium
-draft: true
 ---
 
 For the first PGDay organized in Belgium by the 
@@ -44,7 +43,7 @@ Then... the pressure was on my shoulders to talk about
 The idea was to summarize for beginners what WALs are, how does the _Streaming 
 Replication_ works, give some advices and best practices.
 
-Boriss Mejías re-explained afterwards, with his own way **Replication, where 
+Boriss Mejías re-explained afterwards, with his own way, **Replication, where 
 things just work but you don't know how**. Even if we had some overlap, the 
 two talks were in fact pretty much complementary.
 
