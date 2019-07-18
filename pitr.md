@@ -12,6 +12,7 @@ permalink: /pitr/
 * [Combined with Streaming Replication](../2018/11/28/combining_pgbackrest_and_streaming_replication.html)
 * [PostgreSQL major version upgrade](../2019/03/01/postgresql_major_version_upgrade_impact_on_pgbackrest.html)
 * [Archiving tricks](../2019/03/26/pgbackrest_archiving_tricks.html)
+* [Amazon S3 configuration](../2019/07/19/pgbackrest_s3_configuration.html)
 
 ---
 
