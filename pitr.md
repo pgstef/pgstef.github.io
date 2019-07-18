@@ -6,20 +6,20 @@ permalink: /pitr/
 
 ## pgBackRest
 
-<!-- ![](https://github.com/pgbackrest/pgbackrest/blob/master/doc/resource/logo.png =50x) https://pgbackrest.org/ -->
+![](https://github.com/pgbackrest/pgbackrest/blob/master/doc/resource/logo.png) https://pgbackrest.org/
 
-* [Introduction](2018/01/04/introduction_to_pgbackrest.html)
-* [Combined with Streaming Replication](2018/11/28/combining_pgbackrest_and_streaming_replication.html)
-* [PostgreSQL major version upgrade](2019/03/01/postgresql_major_version_upgrade_impact_on_pgbackrest.html)
-* [Archiving tricks](2019/03/26/pgbackrest_archiving_tricks.html)
+* [Introduction](../2018/01/04/introduction_to_pgbackrest.html)
+* [Combined with Streaming Replication](../2018/11/28/combining_pgbackrest_and_streaming_replication.html)
+* [PostgreSQL major version upgrade](../2019/03/01/postgresql_major_version_upgrade_impact_on_pgbackrest.html)
+* [Archiving tricks](../2019/03/26/pgbackrest_archiving_tricks.html)
 
 ---
 
 ### check_pgbackrest
 
-<!-- ![](https://github.com/dalibo/check_pgbackrest/blob/master/docs/img/logo.png =50x) https://github.com/dalibo/check_pgbackrest -->
+![](https://github.com/dalibo/check_pgbackrest/blob/master/docs/img/logo.png) https://github.com/dalibo/check_pgbackrest
 
-* [Introduction](2019/02/20/monitor_pgbackrest_backups_with_nagios.html)
+* [Introduction](../2019/02/20/monitor_pgbackrest_backups_with_nagios.html)
 
 ---
 
