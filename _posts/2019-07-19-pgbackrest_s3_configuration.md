@@ -47,7 +47,7 @@ EOF
 $ sudo chown -R minio:minio /opt/minio
 ```
 
-MinIO is installed in /opt/minio with a specific system user. The domain name 
+MinIO is installed in `/opt/minio` with a specific system user. The domain name 
 we'll use will be `minio.local` and the bucket name will be `pgbackrest`.
 
 The data will be stored in `/opt/minio/data`.
@@ -189,8 +189,7 @@ the pgBackRest files.
 
 # [](#postgresql)PostgreSQL and pgBackRest installation
 
-First of all, install PostgreSQL and pgBackRest packages directly from the 
-PGDG yum repositories:
+Let's install PostgreSQL and pgBackRest directly from the PGDG yum repositories:
 
 ```bash
 $ sudo yum install -y https://download.postgresql.org/pub/repos/yum/11/redhat/\
@@ -227,7 +226,7 @@ Commands:
 Use 'pgbackrest help [command]' for more information.
 ```
 
-Create a basic PostgreSQL cluster :
+Create a basic PostgreSQL cluster:
 
 ```bash
 $ export PGSETUP_INITDB_OPTIONS="--data-checksums"
