@@ -6,7 +6,7 @@ permalink: /pitr/
 
 ## pgBackRest
 
-![](https://github.com/pgbackrest/pgbackrest/blob/master/doc/resource/logo.png =50x) https://pgbackrest.org/
+<!-- ![](https://github.com/pgbackrest/pgbackrest/blob/master/doc/resource/logo.png =50x) https://pgbackrest.org/ -->
 
 * [Introduction](2018/01/04/introduction_to_pgbackrest.html)
 * [Combined with Streaming Replication](2018/11/28/combining_pgbackrest_and_streaming_replication.html)
@@ -17,7 +17,7 @@ permalink: /pitr/
 
 ### check_pgbackrest
 
-![](https://github.com/dalibo/check_pgbackrest/blob/master/docs/img/logo.png =50x) https://github.com/dalibo/check_pgbackrest
+<!-- ![](https://github.com/dalibo/check_pgbackrest/blob/master/docs/img/logo.png =50x) https://github.com/dalibo/check_pgbackrest -->
 
 * [Introduction](2019/02/20/monitor_pgbackrest_backups_with_nagios.html)
 
@@ -25,6 +25,6 @@ permalink: /pitr/
 
 ## pitrery
 
-![](https://dalibo.github.io/pitrery/imgs/pitrery_logo.png) https://dalibo.github.io/pitrery/
+<!-- ![](https://dalibo.github.io/pitrery/imgs/pitrery_logo.png) https://dalibo.github.io/pitrery/ -->
 
 * [FR: Sauvegarde et Streaming Replication](2018-07-30-replication_et_sauvegarde_pitr_avec_pitrery)
