@@ -1,7 +1,6 @@
 ---
 layout: post
 title: pgBackRest S3 configuration
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
@@ -72,9 +71,9 @@ let's create some self-signed certificates:
 $ mkdir ~/certs
 $ cd ~/certs
 $ openssl genrsa -out ca.key 2048
-$ openssl req -new -x509 -extensions v3_ca -key ca.key -out ca.crt -days 99999 -subj "/C=BE/ST=Country/L=City/O=Organization/CN=pgbackrest.org"
+$ openssl req -new -x509 -extensions v3_ca -key ca.key -out ca.crt -days 99999 -subj "/C=BE/ST=Country/L=City/O=Organization/CN=some-really-cool-name"
 $ openssl genrsa -out server.key 2048
-$ openssl req -new -key server.key -out server.csr -subj "/C=BE/ST=Country/L=City/O=Organization/CN=pgbackrest.org"
+$ openssl req -new -key server.key -out server.csr -subj "/C=BE/ST=Country/L=City/O=Organization/CN=some-really-cool-name"
 $ openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 99999 -sha256
 
 $ sudo mkdir -p -m 755 /opt/minio/certs
