@@ -258,7 +258,7 @@ repo1-path=/repo
 repo1-type=s3
 repo1-s3-endpoint=minio.local
 repo1-s3-bucket=pgbackrest
-repo1-s3-verify-ssl=n
+repo1-s3-verify-tls=n
 repo1-s3-key=accessKey
 repo1-s3-key-secret=superSECRETkey
 repo1-s3-region=eu-west-3
@@ -331,7 +331,7 @@ logs and other AWS generated content can also be stored in the bucket.
 
 -----
 
-## [](#repo1-s3-verify-ssl)repo1-s3-verify-ssl
+## [](#repo1-s3-verify-tls)repo1-s3-verify-tls
 
 Verify S3 server certificate.
 
@@ -339,7 +339,7 @@ Disables verification of the S3 server certificate. This should only be used
 for testing or other scenarios where a certificate has been self-signed.
 
 `tl;dr`: this option would be, I think, very useful in the official 
-`Net::Amazon::S3` perl module...
+`Amazon::S3` perl module...
 
 -----
 
