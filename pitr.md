@@ -28,4 +28,4 @@ permalink: /pitr/
 
 <img src="https://dalibo.github.io/pitrery/imgs/pitrery_logo.png" alt="pitrery_logo" height="50"/>
 
-* [FR: Sauvegarde et Streaming Replication](2018-07-30-replication_et_sauvegarde_pitr_avec_pitrery)
+* [FR: Sauvegarde et Streaming Replication](../2018-07-30-replication_et_sauvegarde_pitr_avec_pitrery)
