@@ -12,3 +12,7 @@ permalink: /talks/
 ### 2019
 
 * 2019-05-17 - FR - PGDay Belgium (pgconf.be) : [Streaming Replication, the basics](https://pgstef.github.io/talks/en/20190517_pgconfBE_Streaming-Replication.reveal.pdf)
+
+### 2020
+
+* 2020-01-28 - EN - Meetup PG Lille : [pgBackRest Schrödinger's backups](https://pgstef.github.io/talks/fr/20200128_meetup_pgbackrest-schrodingers-backups.reveal.pdf)
