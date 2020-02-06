@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Monitor pgBackRest backups with check_pgbackrest 1.7
-draft: true
 ---
 
 [check_pgbackrest](https://labs.dalibo.com/check_pgbackrest) is designed to 
