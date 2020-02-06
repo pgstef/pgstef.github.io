@@ -8,6 +8,8 @@ draft: true
 monitor `pgBackRest` backups, relying on the status information given by the 
 `info` command. 
 
+![A pgBackRest backup check plugin for Nagios](../images/logo-horizontal.png)
+
 The main features are:
 * check WAL archives consistency;
 * check the retention policy;
@@ -20,7 +22,8 @@ The main features are:
 
 # [](#installation)Installation
 
-The RPM file made it's way to the PGDG Yum repository!
+The RPM file made it's way to the PGDG Yum repository! Special thanks to 
+[Devrim](https://twitter.com/DevrimGunduz) for that!
 
 It can also be found in the Dalibo Labs Yum repository.
 
@@ -183,6 +186,38 @@ as standby server.
   * `icinga-srv` executes check_pgbackrest by ssh with Icinga 2;
   * `pgsql-srv` hosting a pgsql cluster with pgBackRest installed;
   * `backup-srv` hosting the MinIO server.
+
+-----
+
+# [](#evolution)Evolution
+
+The first evolution I'd like to implement would be to use the `pgbackrest ls` 
+command to get the archives list. Indeed, `mtime` property for archives is 
+available since `pgBackRest` 2.21. At the moment, we'd still need a `cat` 
+command for the `.history` files.
+
+```bash
+$ pgbackrest help ls
+pgBackRest 2.23 - 'ls' command help
+
+List paths/files in the repository.
+
+This is intended to be a general purpose list function, but for now it only
+works on the repository.
+
+Command Options:
+
+  --filter                         filter output with a regular expression
+  --output                         output format [default=text]
+  --recurse                        include all subpaths in output [default=n]
+  --sort                           sort output ascending, descending, or none
+                                   [default=asc]
+```
+
+Another possible evolution would be the Debian support with specific test cases 
+(using Vagrant) and a `.deb` package.
+
+If you have any idea to improve the tool, please, share it! :-)
 
 -----
 
