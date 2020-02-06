@@ -8,7 +8,7 @@ draft: true
 monitor `pgBackRest` backups, relying on the status information given by the 
 `info` command. 
 
-![A pgBackRest backup check plugin for Nagios](../../../images/logo-horizontal.png =800x)
+<img src="../../../images/logo-horizontal.png" width=800 alt="" /> 
 
 The main features are:
 * check WAL archives consistency;
@@ -108,7 +108,7 @@ Long message   : latest_bck_type=incr
 ## Remote storage
 
 If the archives are pushed to another server, use the `--repo-host` and 
-`--repo-host-user` arguments :
+`--repo-host-user` arguments:
 
 ```bash
 $ check_pgbackrest --stanza=my_stanza 
