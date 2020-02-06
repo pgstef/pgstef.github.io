@@ -8,7 +8,7 @@ draft: true
 monitor `pgBackRest` backups, relying on the status information given by the 
 `info` command. 
 
-<img src="../../../images/logo-horizontal.png" width=800 alt="" /> 
+![](../../../images/logo-horizontal.png){:width="800px"}
 
 The main features are:
 * check WAL archives consistency;
