@@ -8,7 +8,7 @@ draft: true
 monitor `pgBackRest` backups, relying on the status information given by the 
 `info` command. 
 
-![A pgBackRest backup check plugin for Nagios](../../../images/logo-horizontal.png)
+![A pgBackRest backup check plugin for Nagios](../../../images/logo-horizontal.png =800x)
 
 The main features are:
 * check WAL archives consistency;
