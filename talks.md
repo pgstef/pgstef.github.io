@@ -15,4 +15,4 @@ permalink: /talks/
 
 ### 2020
 
-* 2020-01-28 - EN - Meetup PG Lille : [pgBackRest Schrödinger's backups](https://pgstef.github.io/talks/fr/20200128_meetup_pgbackrest-schrodingers-backups.reveal.pdf)
+* 2020-01-28 - FR - Meetup PG Lille : [pgBackRest Schrödinger's backups](https://pgstef.github.io/talks/fr/20200128_meetup_pgbackrest-schrodingers-backups.reveal.pdf)
