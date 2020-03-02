@@ -1,13 +1,12 @@
 ---
 layout: post
 title: pgBackRest auto-select backup
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
 restore tool. 
 
-The 2.24 version, released on February 25 introduced auto-selection of backup 
+The 2.24 version, released on February 25, introduced auto-selection of backup 
 set on restore when time target is specified. Auto-selection is performed only 
 when `--set` is not specified. If a backup set for the given target time can't 
 be found, the latest (default) backup set will be used. 
@@ -144,7 +143,7 @@ postgres=# select pg_create_restore_point('RP1');
 
 Find the precise time when the restore point has been created in the logs:
 
-```bash
+```
 2020-03-02 09:05:45.050 CET [27122] LOG:  restore point "RP1" created at 0/5000090
 2020-03-02 09:05:45.050 CET [27122] STATEMENT:  select pg_create_restore_point('RP1');
 ```
@@ -176,7 +175,7 @@ P00   INFO: backup command end: completed successfully
 ...
 ```
 
-Check the backups status:
+Check backup status:
 
 ```bash
 $ sudo -iu postgres pgbackrest info
@@ -236,7 +235,7 @@ $ sudo -iu postgres psql -c "SELECT * FROM t1;"
 (2 rows)
 ```
 
-The backup set restore was created after our restore point. We should have 
+The backup set restored was created after our restore point. We should have 
 used the `--set` option to specify which backup we want to restore.
 
 -----
