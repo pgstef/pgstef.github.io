@@ -16,5 +16,5 @@ permalink: /talks/
 ### 2020
 
 * 2020-01-28 - FR - Meetup PG Lille : [pgBackRest Schrödinger's backups](https://pgstef.github.io/talks/fr/20200128_meetup_pgbackrest-schrodingers-backups.reveal.pdf)
-* 2020-03-05 - EN - Meetup PG Belgium : [Point-in-time Recovery, target 2020](https://pgstef.github.io/talks/en/20200305_meetup_pitr-target-2020.reveal)
+* 2020-03-05 - EN - Meetup PG Belgium : [Point-in-time Recovery, target 2020](https://pgstef.github.io/talks/en/20200305_meetup_pitr-target-2020.reveal.pdf)
 
