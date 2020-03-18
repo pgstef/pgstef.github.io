@@ -1,7 +1,6 @@
 ---
 layout: post
 title: check_pgbackrest 1.8 has been released
-draft: true
 ---
 
 [check_pgbackrest](https://labs.dalibo.com/check_pgbackrest) is designed to 
@@ -79,14 +78,14 @@ Long message   : latest_bck_archive_start=000000010000000000000005
 Long message   : latest_bck_type=incr
 ```
 
-The returned message can be very long in case of lots of missing archives... 
+The returned message can be very long in case of multiple missing archives... 
 That's why it has been changed in the new release.
 
 -----
 
 # 1.8 release
 
-Run the same commands with 1.8 release:
+Run the same commands with the 1.8 release:
 
 ```bash
 $ /usr/lib64/nagios/plugins/check_pgbackrest --version
@@ -95,8 +94,7 @@ check_pgbackrest version 1.8, Perl 5.16.3
 $ /usr/lib64/nagios/plugins/check_pgbackrest --stanza=my_stanza 
 	--service=archives --repo-path=/var/lib/pgbackrest/archive
 WAL_ARCHIVES CRITICAL - 
-	wrong sequence, 4 missing file(s) (000000010000000000000010 / 
-		000000010000000000000013) | 
+	wrong sequence, 4 missing file(s) (000000010000000000000010 / 000000010000000000000013) | 
 	latest_archive_age=1987s 
 	num_archives=20 
 	num_missing_archives=4 
@@ -107,8 +105,7 @@ $ /usr/lib64/nagios/plugins/check_pgbackrest --stanza=my_stanza
 	--service=archives --repo-path=/var/lib/pgbackrest/archive --output=human
 Service        : WAL_ARCHIVES
 Returns        : 2 (CRITICAL)
-Message        : wrong sequence, 4 missing file(s) (000000010000000000000010 / 
-	000000010000000000000013)
+Message        : wrong sequence, 4 missing file(s) (000000010000000000000010 / 000000010000000000000013)
 Long message   : latest_archive_age=33m37s
 Long message   : num_archives=20
 Long message   : num_missing_archives=4
@@ -124,7 +121,7 @@ Long message   : latest_bck_type=incr
 ```
 
 In the nagios-style output, the returned message has been simplified while new 
-information has been added in the _performance data_ part.
+information has been added in the __performance data__ part.
 
 The complete list of missing archives can now be found in the `--debug` output:
 
@@ -139,8 +136,7 @@ DEBUG: missing 000000010000000000000012
 DEBUG: missing 000000010000000000000013
 Service        : WAL_ARCHIVES
 Returns        : 2 (CRITICAL)
-Message        : wrong sequence, 4 missing file(s) (000000010000000000000010 / 
-	000000010000000000000013)
+Message        : wrong sequence, 4 missing file(s) (000000010000000000000010 / 000000010000000000000013)
 Long message   : latest_archive_age=33m52s
 Long message   : num_archives=20
 Long message   : num_missing_archives=4
@@ -193,8 +189,7 @@ DEBUG: found 000000010000000000000019
 DEBUG: found 00000001000000000000001A
 Service        : WAL_ARCHIVES
 Returns        : 2 (CRITICAL)
-Message        : wrong sequence, 4 missing file(s) (000000010000000000000010 / 
-	000000010000000000000013)
+Message        : wrong sequence, 4 missing file(s) (000000010000000000000010 / 000000010000000000000013)
 Long message   : latest_archive_age=34m15s
 Long message   : num_archives=20
 Long message   : num_missing_archives=4
