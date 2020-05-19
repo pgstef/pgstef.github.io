@@ -12,9 +12,12 @@ Today, let's have a look at: [add backup/expire running status to the info comma
 ```
 This is implemented by checking for a backup lock on the host where info is running so there are a few limitations:
 
-* It is not currently possible to know which command is running: backup, expire, or stanza-*. The stanza commands are very unlikely to be running so it's pretty safe to guess backup/expire. Command information may be added to the lock file to improve the accuracy of the reported command.
+* It is not currently possible to know which command is running: backup, expire, or stanza-*. 
+The stanza commands are very unlikely to be running so it's pretty safe to guess backup/expire. 
+Command information may be added to the lock file to improve the accuracy of the reported command.
 
-* If the info command is run on a host that is not participating in the backup, e.g. a standby, then there will be no backup lock. This seems like a minor limitation since running info on the repo or primary host is preferred.
+* If the info command is run on a host that is not participating in the backup, e.g. a standby, then there will be no backup lock. 
+This seems like a minor limitation since running info on the repo or primary host is preferred.
 ```
 
 <!--MORE-->
