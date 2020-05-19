@@ -1,7 +1,6 @@
 ---
 layout: post
 title: pgBackRest preview - Info command and backup/expire running status
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
@@ -11,21 +10,11 @@ have been developed since then.
 Today, let's have a look at: [add backup/expire running status to the info command](https://github.com/pgbackrest/pgbackrest/commit/e92eb709).
 
 ```
-This is implemented by checking for a backup lock on the host where info is 
-running so there are a few limitations:
+This is implemented by checking for a backup lock on the host where info is running so there are a few limitations:
 
-* It is not currently possible to know which command is running: backup, 
-expire, or stanza-*. 
+* It is not currently possible to know which command is running: backup, expire, or stanza-*. The stanza commands are very unlikely to be running so it's pretty safe to guess backup/expire. Command information may be added to the lock file to improve the accuracy of the reported command.
 
-The stanza commands are very unlikely to be running so it's pretty safe to 
-guess backup/expire. 
-
-Command information may be added to the lock file to improve the accuracy of 
-the reported command.
-
-* If the info command is run on a host that is not participating in the backup, 
-e.g. a standby, then there will be no backup lock. This seems like a minor 
-limitation since running info on the repo or primary host is preferred.
+* If the info command is run on a host that is not participating in the backup, e.g. a standby, then there will be no backup lock. This seems like a minor limitation since running info on the repo or primary host is preferred.
 ```
 
 <!--MORE-->
@@ -216,10 +205,10 @@ ssh ... postgres@pgsql-srv pgbackrest ... --remote-type=pg --stanza=my_stanza ba
 pgbackrest ... --remote-type=pg --stanza=my_stanza --type=full backup:local
 ```
 
-This means the backup command is run locally but connects through SSH to the 
+This means the backup command runs locally but connects through SSH to the 
 `pgsql` server to get the data.
 
-If we run the info command on the remote host then, we get the same information:
+Then, if we execute the info command on the remote host, we get the same information:
 
 ```bash
 $ pgbackrest --stanza=my_stanza info
@@ -251,7 +240,8 @@ $ pgbackrest --stanza=my_stanza --output=json info
 
 # Conclusion
 
-This feature is pretty basic and may be improved in the future but provides us 
-a good hint. 
+This feature is pretty basic and may be improved in the future but already 
+provides us a good hint. 
 
-Pay attention to the release notes when the new version will be available!
+Pay attention to the release notes when the new version will be available, 
+interesting new features are planned!
