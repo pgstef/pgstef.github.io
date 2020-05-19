@@ -1,7 +1,6 @@
 ---
 layout: post
 title: pgBackRest preview - Info command: backup/expire running status
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
