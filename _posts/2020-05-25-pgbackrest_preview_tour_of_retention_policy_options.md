@@ -48,7 +48,7 @@ that **at least one full backup** over the time-period defined will be kept.
 
 ## Expire a specific backup set
 
-[Add --set option to the expire command:](https://github.com/pgbackrest/pgbackrest/commit/1c1a7104)
+[Add `--set` option to the expire command:](https://github.com/pgbackrest/pgbackrest/commit/1c1a7104)
 
 ```
 The specified backup set (i.e. the backup label provided and all of its 
@@ -59,14 +59,8 @@ rules except that at least one full backup must remain in the repository.
 The description is pretty simple, it will now be possible to expire a specific 
 backup set using the `--set` option.
 
-The specified backup set (i.e. the backup label provided and all of its 
-dependent backups, if any) will be expired regardless of backup retention rules 
-except that at least one full backup must remain in the repository.
-
-WARNING: Use this option with extreme caution — it will permanently remove all 
-backups and archives not required to make a backup consistent from the 
-pgBackRest repository for the specified backup set. 
-This process may negate the ability to perform PITR.
+However, WAL archives will be kept according their own retention policy because 
+of the next commit explained.
 
 ---
 
@@ -961,7 +955,7 @@ stanza: my_stanza
 ```
 
 The backup set was expired **but** as the retention policy wasn't met, WAL 
-archives are kept until a full backup matching the retention policy will exist.
+archives are kept until a full backup matching the retention policy exists.
 
 ```bash
 $ sudo date -s "15 June 2020 10:00:00"
@@ -1013,7 +1007,7 @@ The time-based retention will always keep at least one full backup matching the
 time period requested. We'll then need to wait an extra backup to see the old 
 archives expired.
 
-One again, as it can mess with WAL archives cleaning, use this option carefully 
+Once again, as it can mess with WAL archives cleaning, use this option carefully 
 and preferably only with recent backups. Don't use it to force old backups 
 expiry, adjust retention policy to achieve that.
 
