@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "pgBackRest preview - A tour of retention policy options"
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
