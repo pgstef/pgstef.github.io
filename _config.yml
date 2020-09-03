@@ -3,11 +3,11 @@ description: SELECT * FROM pgstef
 theme: jekyll-theme-hacker
 
 name: Stefan Fercot
-work: PostgreSQL DBA
-company: Dalibo
+work: Database Backup Architect 
+company: EDB
 avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
 twitter: pgstef
-email: stefan.fercot@gmail.com
+email: pgstef@fercot.be
 
 excerpt_separator: "<!--MORE-->"
 paginate: 10
