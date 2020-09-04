@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Combining pgBackRest and Streaming Replication, PG13 update
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and 
