@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Combining pgBackRest dedicated repository host and Streaming Replication
-draft: true
 ---
 
 [pgBackRest](http://pgbackrest.org/) is a well-known powerful backup and restore tool. It offers a lot of possibilities.
