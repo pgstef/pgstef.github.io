@@ -68,7 +68,7 @@ $ sudo -u postgres pgbackrest version
 pgBackRest 2.30
 ```
 
-Finally, create a basic PostgreSQL cluster on **pg1-srv**:
+Finally, create a basic PostgreSQL instance on **pg1-srv**:
 
 ```bash
 $ export PGSETUP_INITDB_OPTIONS="--data-checksums"
@@ -120,13 +120,13 @@ $ ssh root@backup-srv cat /home/pgbackrest/.ssh/id_rsa.pub | \
 Authorize the `postgres` user public keys on the **backup-srv**:
 
 ```bash
-$ sudo ssh root@pg1-srv cat /var/lib/pgsql/.ssh/id_rsa.pub | \
+$ ssh root@pg1-srv cat /var/lib/pgsql/.ssh/id_rsa.pub | \
     sudo -u pgbackrest tee -a /home/pgbackrest/.ssh/authorized_keys
 
-$ sudo ssh root@pg2-srv cat /var/lib/pgsql/.ssh/id_rsa.pub | \
+$ ssh root@pg2-srv cat /var/lib/pgsql/.ssh/id_rsa.pub | \
     sudo -u pgbackrest tee -a /home/pgbackrest/.ssh/authorized_keys
 
-$ sudo ssh root@pg3-srv cat /var/lib/pgsql/.ssh/id_rsa.pub | \
+$ ssh root@pg3-srv cat /var/lib/pgsql/.ssh/id_rsa.pub | \
     sudo -u pgbackrest tee -a /home/pgbackrest/.ssh/authorized_keys
 ```
 
@@ -158,10 +158,10 @@ root# passwd
 
 We'll now prepare the configuration for our stanza called `mycluster`. 
 
-The stanza name is totally up to you. It is often tempting to name the stanza after the primary cluster but a better 
-name describes the databases contained in the cluster. Because the stanza name will be used for the primary and all 
-replicas it is more appropriate to choose a name that describes the actual function of the cluster, such as app or dw, 
-rather than the local cluster name, such as main or prod.
+The stanza name is totally up to you. It is often tempting to name the stanza after the primary instance but a better 
+name describes the databases contained in it. Because the stanza name will be used for the primary and all replicas it 
+is more appropriate to choose a name that describes the actual function of the cluster, such as app or dw, rather than 
+the local instance name, such as main or prod.
 
 Update the **backup-srv** pgBackRest configuration file:
 
@@ -203,7 +203,7 @@ archive_mode = on
 archive_command = 'pgbackrest --stanza=mycluster archive-push %p'
 ```
 
-The PostgreSQL cluster must be restarted after making these changes and before performing a backup.
+The PostgreSQL instance must be restarted after making these changes and before performing a backup.
 
 ```bash
 $ sudo systemctl restart postgresql-13.service
@@ -330,10 +330,9 @@ As you may notice, it is the same configuration as on **pg1-srv** with the extra
 [recovery-option](https://pgbackrest.org/configuration.html#section-restore/option-recovery-option).
 The idea is to automatically configure the _Streaming Replication_ connection string with the restore command.
 
-Then, make sure the configuration is correct by executing the `info` command. It should print you the same output as 
-above.
+Then, make sure the configuration is correct by executing the `info` command. It should print the same output as above.
 
-Restore the backup taken from the **pg1-srv** server:
+Restore the backup taken from the **pg1-srv** server on **pg2-srv** and **pg3-srv**:
 
 ```bash
 $ sudo -iu postgres pgbackrest --stanza=mycluster --type=standby restore
@@ -353,7 +352,7 @@ restore_command = 'pgbackrest --stanza=mycluster archive-get %f "%p"'
 ```
 
 The `--type=standby` option creates the `standby.signal` needed for PostgreSQL to start in standby mode. All we have to
-do now is to start the PostgreSQL cluster:
+do now is to start the PostgreSQL instances:
 
 ```bash
 $ sudo systemctl enable postgresql-13
@@ -375,7 +374,7 @@ We now have a 3-nodes cluster working with _Streaming Replication_ and archives 
 
 # Take backups from the standby servers
 
-Add the following settings to the pgBackRest configuration file on **backup-srv**, in the `[mycluster]` section:
+Add the following settings to the pgBackRest configuration file on **backup-srv**, in the `[mycluster]` stanza section:
 
 ```ini
 pg2-host=pg2-srv
@@ -409,6 +408,6 @@ P00   INFO: expire command end: completed successfully
 # Conclusion
 
 As you can see, the `backup` command is executed from the repository host and the `restore` command on the PostgreSQL 
-nodes. The `info` command can run on all the servers.
+nodes.
 
 The repository host may even be configured to backup multiple PostgreSQL clusters by setting up multiple stanzas. 
