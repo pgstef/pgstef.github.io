@@ -1,6 +1,6 @@
 # Multiple Repositories
 
-The multi-repository support is a huge feature and required a lot of efforts which deserve some enlightenment.
+The multi-repository support is a huge feature and required a lot of effort which deserve some enlightenment.
 
 For this test, let's keep the configuration simple and build pgBackRest using the `dev-multi-repo` branch:
 
@@ -24,7 +24,7 @@ delta=y
 pg1-path=/var/lib/pgsql/13/data
 
 $ date
-Wed 24 Feb 08:37:49 CET 2021
+Wed  3 Mar 15:02:24 CET 2021
 
 $ pgbackrest version
 pgBackRest 2.33dev
@@ -32,7 +32,7 @@ pgBackRest 2.33dev
 
 We'll follow our usual structure. First initialize the repository then take backups and restore the data.
 
-> **_NOTE:_** that the `repo` option is not required when only `repo1` is configured in order to maintain backward compatibility. However, the `repo` option **is** required when a single repository is configured as, e.g. `repo2`. This is to prevent command breakage if a new repository is added later.
+> **_NOTE:_** that the `repo` option is not required when only `repo1` is configured in order to maintain backward compatibility. However, when a single repository is configured, it is recommended to use `repo1` in the configuration.
 
 ---
 
@@ -110,9 +110,9 @@ P00   INFO: check command begin 2.33dev: ...
 P00   INFO: check repo1 configuration (primary)
 P00   INFO: check repo2 configuration (primary)
 P00   INFO: check repo1 archive for WAL (primary)
-P00   INFO: WAL segment 000000010000000000000006 successfully archived to '...' on repo1
+P00   INFO: WAL segment 000000010000000000000005 successfully archived to '...' on repo1
 P00   INFO: check repo2 archive for WAL (primary)
-P00   INFO: WAL segment 000000010000000000000006 successfully archived to '...' on repo2
+P00   INFO: WAL segment 000000010000000000000005 successfully archived to '...' on repo2
 P00   INFO: check command end: completed successfully
 ```
 
@@ -134,20 +134,88 @@ $ psql -c "show archive_command;"
 (1 row)
 ```
 
-Here's a `DEBUG` extract of the PG logs showing the `archive-push` activity:
+Here's a `DEBUG` extract of the PostgreSQL logs showing the `archive-push` activity:
 
 ```
 ...
 P00  DEBUG:     storage/storage::storageNewWrite: => {
 	type: posix, name: {"/var/lib/pgbackrest/repo1/archive/my_stanza/13-1/0000000100000000/
-							000000010000000000000009-17a2471fc0b8e06f64283cdadb904b276b701ae4.gz"}, 
+							000000010000000000000006-6d9b73b1c5643c203800032a130e824743254a2f.gz"},
 	modeFile: 0640, modePath: 0750, createPath: true, syncFile: true, syncPath: true, atomic: true}
 ...
 P00  DEBUG:     storage/storage::storageNewWrite: => {
 	type: posix, name: {"/var/lib/pgbackrest/repo2/archive/my_stanza/13-1/0000000100000000/
-							000000010000000000000009-17a2471fc0b8e06f64283cdadb904b276b701ae4.gz"},
+							000000010000000000000006-6d9b73b1c5643c203800032a130e824743254a2f.gz"},
 	modeFile: 0640, modePath: 0750, createPath: true, syncFile: true, syncPath: true, atomic: true}
-P00   INFO: pushed WAL file '000000010000000000000009' to the archive
+P00   INFO: pushed WAL file '000000010000000000000006' to the archive
+```
+
+The `archive-push` command will continue to push even after it gets a write error on one or more repositories. The idea is to archive to as many repositories as possible even if we still need to throw an error to PostgreSQL to prevent it from removing the WAL file.
+
+```
+P00   INFO: archive-push command begin 2.33dev: [pg_wal/000000010000000000000007] ...
+...
+
+P00  DEBUG:     storage/storage::storageNewWrite: => {
+    type: posix, name: {"/var/lib/pgbackrest/repo1/archive/my_stanza/13-1/0000000100000000/
+                            000000010000000000000007-bdc334ce038fa70ba416a1c435cace8dc9562ae2.gz"},
+    modeFile: 0640, modePath: 0750, createPath: true, syncFile: true, syncPath: true, atomic: true}
+...
+P00  DEBUG:     storage/storage::storageNewWrite: => {
+    type: posix, name: {"/var/lib/pgbackrest/repo2/archive/my_stanza/13-1/0000000100000000/
+                            000000010000000000000007-bdc334ce038fa70ba416a1c435cace8dc9562ae2.gz"},
+    modeFile: 0640, modePath: 0750, createPath: true, syncFile: true, syncPath: true, atomic: true}
+       repo2: [FileOpenError] unable to open file '/var/lib/pgbackrest/repo2/archive/my_stanza/13-1/0000000100000000/
+       000000010000000000000007-bdc334ce038fa70ba416a1c435cace8dc9562ae2.gz' for write: [13] Permission denied
+
+
+... DETAIL:  The failed archive command was: pgbackrest --stanza=my_stanza archive-push pg_wal/000000010000000000000007
+... WARNING:  archiving write-ahead log file "000000010000000000000007" failed too many times, will try again later
+```
+
+The PostgreSQL `archiver` process should then report an error:
+
+```bash
+$ ps -o pid,cmd fx |grep archiver
+ 4746  \_ grep --color=auto archiver
+ 2932  \_ postgres: archiver failed on 000000010000000000000007
+```
+
+The next WAL segments shouldn't then be archived:
+
+```bash
+$ psql -c "SELECT pg_create_restore_point('generate some activity'); SELECT pg_switch_wal();"
+ pg_switch_wal 
+---------------
+ 0/80001C8
+(1 row)
+
+-bash-4.2$ ll 13/data/pg_wal/archive_status/ |grep ".ready"
+-rw-------. 1 postgres postgres 0 Mar  3 15:14 000000010000000000000007.ready
+-rw-------. 1 postgres postgres 0 Mar  3 15:41 000000010000000000000008.ready
+-bash-4.2$ ps -o pid,cmd fx |grep archiver
+29857  \_ grep --color=auto archiver
+ 2932  \_ postgres: archiver failed on 000000010000000000000007
+```
+
+This becomes very handy by adding `archive-async=y` to the configuration in order to use asynchronous archiving processes within pgBackRest itself. Even if PostgreSQL `archiver` process is still stuck, the archives will reach the working repositories:
+
+```bash
+$ ls /var/lib/pgbackrest/repo1/archive/my_stanza/13-1/0000000100000000/
+000000010000000000000006-6d9b73b1c5643c203800032a130e824743254a2f.gz
+000000010000000000000007-bdc334ce038fa70ba416a1c435cace8dc9562ae2.gz
+000000010000000000000008-3f81bea0b1e1295ab42f3fb6fea87b3153d64497.gz
+000000010000000000000009-1e122e08ed285eea517c31608cff36a01c250ce2.gz
+
+$ ls /var/lib/pgbackrest/repo2/archive/my_stanza/13-1/0000000100000000/
+000000010000000000000006-6d9b73b1c5643c203800032a130e824743254a2f.gz
+```
+
+Let's unblock the `archiver` process (and remove asynchronous archiving) before going further:
+
+```bash
+$ ps -o pid,cmd fx |grep archiver
+ 2932  \_ postgres: archiver last was 00000001000000000000000A
 ```
 
 ### Backup Command
@@ -156,61 +224,70 @@ Let's take some backups:
 
 ```bash
 $ pgbackrest backup --stanza=my_stanza --type=full --repo=1
-P00   INFO: backup command begin 2.33dev: ..
+P00   INFO: backup command begin 2.33dev: ...
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 00000001000000000000000B, lsn = 0/B000028
-P00   INFO: full backup size = 23.1MB
+P00   INFO: backup start archive = 00000001000000000000000C, lsn = 0/C000028
+P00   INFO: full backup size = 24.9MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 00000001000000000000000B, lsn = 0/B000100
-P00   INFO: check archive for segment(s) 00000001000000000000000B:00000001000000000000000B
-P00   INFO: new backup label = 20210224-150437F
+P00   INFO: backup stop archive = 00000001000000000000000C, lsn = 0/C000138
+P00   INFO: check archive for segment(s) 00000001000000000000000C:00000001000000000000000C
+P00   INFO: new backup label = 20210303-155849F
 P00   INFO: backup command end: completed successfully
-P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: expire command end: completed successfully
 
 $ pgbackrest backup --stanza=my_stanza --type=full --repo=2
 P00   INFO: backup command begin 2.33dev: ...
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 00000001000000000000000D, lsn = 0/D000028
-P00   INFO: full backup size = 23.1MB
+P00   INFO: backup start archive = 00000001000000000000000E, lsn = 0/E000028
+P00   INFO: full backup size = 24.9MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 00000001000000000000000D, lsn = 0/D000100
-P00   INFO: check archive for segment(s) 00000001000000000000000D:00000001000000000000000D
-P00   INFO: new backup label = 20210224-150449F
+P00   INFO: backup stop archive = 00000001000000000000000E, lsn = 0/E000138
+P00   INFO: check archive for segment(s) 00000001000000000000000E:00000001000000000000000E
+P00   INFO: new backup label = 20210303-161259F
 P00   INFO: backup command end: completed successfully
-P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: expire command end: completed successfully
 
 $ pgbackrest backup --stanza=my_stanza --type=incr --repo=1
 P00   INFO: backup command begin 2.33dev: ...
-P00   INFO: last backup label = 20210224-150437F, version = 2.33dev
-P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 00000001000000000000000E, lsn = 0/E000028
-P00   INFO: incr backup size = 23.1MB
-P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 00000001000000000000000E, lsn = 0/E000100
-P00   INFO: check archive for segment(s) 00000001000000000000000E:00000001000000000000000E
-P00   INFO: new backup label = 20210224-150437F_20210224-150505I
-P00   INFO: backup command end: completed successfully
-P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: expire command end: completed successfully
-
-$ pgbackrest backup --stanza=my_stanza --type=incr --repo=2
-P00   INFO: backup command begin 2.33dev: ...
-P00   INFO: last backup label = 20210224-150449F, version = 2.33dev
+P00   INFO: last backup label = 20210303-155849F, version = 2.33dev
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
 P00   INFO: backup start archive = 000000010000000000000010, lsn = 0/10000028
-P00   INFO: incr backup size = 23.1MB
+P00   INFO: incr backup size = 25.0MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
 P00   INFO: backup stop archive = 000000010000000000000010, lsn = 0/10000100
 P00   INFO: check archive for segment(s) 000000010000000000000010:000000010000000000000010
-P00   INFO: new backup label = 20210224-150449F_20210224-150511I
+P00   INFO: new backup label = 20210303-155849F_20210303-161329I
 P00   INFO: backup command end: completed successfully
-P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: expire command end: completed successfully
+
+$ pgbackrest backup --stanza=my_stanza --type=incr --repo=2
+P00   INFO: backup command begin 2.33dev: ...
+P00   INFO: last backup label = 20210303-161259F, version = 2.33dev
+P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
+P00   INFO: backup start archive = 000000010000000000000012, lsn = 0/12000028
+P00   INFO: incr backup size = 25MB
+P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
+P00   INFO: backup stop archive = 000000010000000000000012, lsn = 0/12000138
+P00   INFO: check archive for segment(s) 000000010000000000000012:000000010000000000000012
+P00   INFO: new backup label = 20210303-161259F_20210303-161400I
+P00   INFO: backup command end: completed successfully
 ```
 
 Here, we alternated `full` and `incr` backups in each repository.
+
+When multiple repositories are configured, pgBackRest will backup to the highest priority repository (e.g. `repo1`) unless the `--repo` option is specified.
+
+```bash
+$ pgbackrest backup --stanza=my_stanza --type=incr
+P00   INFO: backup command begin 2.33dev: ...
+P00   INFO: repo option not specified, defaulting to repo1
+P00   INFO: last backup label = 20210303-155849F_20210303-161329I, version = 2.33dev
+P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
+P00   INFO: backup start archive = 000000010000000000000016, lsn = 0/16000028
+P00   INFO: incr backup size = 25.1MB
+P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
+P00   INFO: backup stop archive = 000000010000000000000016, lsn = 0/16000100
+P00   INFO: check archive for segment(s) 000000010000000000000016:000000010000000000000016
+P00   INFO: new backup label = 20210303-155849F_20210303-161732I
+P00   INFO: backup command end: completed successfully
+```
 
 ### Info Command
 
@@ -221,33 +298,40 @@ stanza: my_stanza
     cipher: none
 
     db (current)
-        wal archive min/max (13): 000000010000000000000006/000000010000000000000010
+        wal archive min/max (13): 00000001000000000000000C/000000010000000000000016
 
-        full backup: 20210224-150437F
-            timestamp start/stop: 2021-02-24 15:04:37 / 2021-02-24 15:04:40
-            wal start/stop: 00000001000000000000000B / 00000001000000000000000B
-            database size: 23.1MB, database backup size: 23.1MB
-            repo1: backup set size: 2.8MB, backup size: 2.8MB
+        full backup: 20210303-155849F
+            timestamp start/stop: 2021-03-03 15:58:49 / 2021-03-03 15:58:52
+            wal start/stop: 00000001000000000000000C / 00000001000000000000000C
+            database size: 24.9MB, database backup size: 24.9MB
+            repo1: backup set size: 2.9MB, backup size: 2.9MB
 
-        full backup: 20210224-150449F
-            timestamp start/stop: 2021-02-24 15:04:49 / 2021-02-24 15:04:52
-            wal start/stop: 00000001000000000000000D / 00000001000000000000000D
-            database size: 23.1MB, database backup size: 23.1MB
-            repo2: backup set size: 2.8MB, backup size: 2.8MB
-
-        incr backup: 20210224-150437F_20210224-150505I
-            timestamp start/stop: 2021-02-24 15:05:05 / 2021-02-24 15:05:06
+        full backup: 20210303-161259F
+            timestamp start/stop: 2021-03-03 16:12:59 / 2021-03-03 16:13:02
             wal start/stop: 00000001000000000000000E / 00000001000000000000000E
-            database size: 23.1MB, database backup size: 50.7KB
-            repo1: backup set size: 2.8MB, backup size: 4.3KB
-            backup reference list: 20210224-150437F
+            database size: 24.9MB, database backup size: 24.9MB
+            repo2: backup set size: 2.9MB, backup size: 2.9MB
 
-        incr backup: 20210224-150449F_20210224-150511I
-            timestamp start/stop: 2021-02-24 15:05:11 / 2021-02-24 15:05:12
+        incr backup: 20210303-155849F_20210303-161329I
+            timestamp start/stop: 2021-03-03 16:13:29 / 2021-03-03 16:13:31
             wal start/stop: 000000010000000000000010 / 000000010000000000000010
-            database size: 23.1MB, database backup size: 52.2KB
-            repo2: backup set size: 2.8MB, backup size: 4.4KB
-            backup reference list: 20210224-150449F
+            database size: 25.0MB, database backup size: 1.9MB
+            repo1: backup set size: 2.9MB, backup size: 29.7KB
+            backup reference list: 20210303-155849F
+
+        incr backup: 20210303-161259F_20210303-161400I
+            timestamp start/stop: 2021-03-03 16:14:00 / 2021-03-03 16:14:01
+            wal start/stop: 000000010000000000000012 / 000000010000000000000012
+            database size: 25MB, database backup size: 1.9MB
+            repo2: backup set size: 2.9MB, backup size: 30.4KB
+            backup reference list: 20210303-161259F
+
+        incr backup: 20210303-155849F_20210303-161732I
+            timestamp start/stop: 2021-03-03 16:17:32 / 2021-03-03 16:17:34
+            wal start/stop: 000000010000000000000016 / 000000010000000000000016
+            database size: 25.1MB, database backup size: 2MB
+            repo1: backup set size: 2.9MB, backup size: 31.7KB
+            backup reference list: 20210303-155849F
 ```
 
 The default order will sort backups by dates mixing the repositories. That might be confusing to find the backups depending on each other.
@@ -261,20 +345,27 @@ stanza: my_stanza
     cipher: none
 
     db (current)
-        wal archive min/max (13): 00000001000000000000000B/000000010000000000000010
+        wal archive min/max (13): 00000001000000000000000C/000000010000000000000016
 
-        full backup: 20210224-150437F
-            timestamp start/stop: 2021-02-24 15:04:37 / 2021-02-24 15:04:40
-            wal start/stop: 00000001000000000000000B / 00000001000000000000000B
-            database size: 23.1MB, database backup size: 23.1MB
-            repo1: backup set size: 2.8MB, backup size: 2.8MB
+        full backup: 20210303-155849F
+            timestamp start/stop: 2021-03-03 15:58:49 / 2021-03-03 15:58:52
+            wal start/stop: 00000001000000000000000C / 00000001000000000000000C
+            database size: 24.9MB, database backup size: 24.9MB
+            repo1: backup set size: 2.9MB, backup size: 2.9MB
 
-        incr backup: 20210224-150437F_20210224-150505I
-            timestamp start/stop: 2021-02-24 15:05:05 / 2021-02-24 15:05:06
-            wal start/stop: 00000001000000000000000E / 00000001000000000000000E
-            database size: 23.1MB, database backup size: 50.7KB
-            repo1: backup set size: 2.8MB, backup size: 4.3KB
-            backup reference list: 20210224-150437F
+        incr backup: 20210303-155849F_20210303-161329I
+            timestamp start/stop: 2021-03-03 16:13:29 / 2021-03-03 16:13:31
+            wal start/stop: 000000010000000000000010 / 000000010000000000000010
+            database size: 25.0MB, database backup size: 1.9MB
+            repo1: backup set size: 2.9MB, backup size: 29.7KB
+            backup reference list: 20210303-155849F
+
+        incr backup: 20210303-155849F_20210303-161732I
+            timestamp start/stop: 2021-03-03 16:17:32 / 2021-03-03 16:17:34
+            wal start/stop: 000000010000000000000016 / 000000010000000000000016
+            database size: 25.1MB, database backup size: 2MB
+            repo1: backup set size: 2.9MB, backup size: 31.7KB
+            backup reference list: 20210303-155849F
 
 $ pgbackrest info --stanza=my_stanza --repo=2
 stanza: my_stanza
@@ -282,20 +373,21 @@ stanza: my_stanza
     cipher: none
 
     db (current)
-        wal archive min/max (13): 000000010000000000000006/000000010000000000000010
+        wal archive min/max (13): 00000001000000000000000E/000000010000000000000016
 
-        full backup: 20210224-150449F
-            timestamp start/stop: 2021-02-24 15:04:49 / 2021-02-24 15:04:52
-            wal start/stop: 00000001000000000000000D / 00000001000000000000000D
-            database size: 23.1MB, database backup size: 23.1MB
-            repo2: backup set size: 2.8MB, backup size: 2.8MB
+        full backup: 20210303-161259F
+            timestamp start/stop: 2021-03-03 16:12:59 / 2021-03-03 16:13:02
+            wal start/stop: 00000001000000000000000E / 00000001000000000000000E
+            database size: 24.9MB, database backup size: 24.9MB
+            repo2: backup set size: 2.9MB, backup size: 2.9MB
 
-        incr backup: 20210224-150449F_20210224-150511I
-            timestamp start/stop: 2021-02-24 15:05:11 / 2021-02-24 15:05:12
-            wal start/stop: 000000010000000000000010 / 000000010000000000000010
-            database size: 23.1MB, database backup size: 52.2KB
-            repo2: backup set size: 2.8MB, backup size: 4.4KB
-            backup reference list: 20210224-150449F
+        incr backup: 20210303-161259F_20210303-161400I
+            timestamp start/stop: 2021-03-03 16:14:00 / 2021-03-03 16:14:01
+            wal start/stop: 000000010000000000000012 / 000000010000000000000012
+            database size: 25MB, database backup size: 1.9MB
+            repo2: backup set size: 2.9MB, backup size: 30.4KB
+            backup reference list: 20210303-161259F
+
 ```
 
 The **'wal archive min/max'** shows the minimum and maximum WAL currently stored in the archive and, in the case of multiple repositories, will be reported across all repositories unless the `--repo` option is set. Note that there may be gaps due to archive retention policies or other reasons.
@@ -327,21 +419,20 @@ stanza: my_stanza
     cipher: none
 
     db (current)
-        wal archive min/max (13): 000000010000000000000006/000000010000000000000010
+        wal archive min/max (13): 00000001000000000000000E/000000010000000000000016
 
-        full backup: 20210224-150449F
-            timestamp start/stop: 2021-02-24 15:04:49 / 2021-02-24 15:04:52
-            wal start/stop: 00000001000000000000000D / 00000001000000000000000D
-            database size: 23.1MB, database backup size: 23.1MB
-            repo2: backup set size: 2.8MB, backup size: 2.8MB
+        full backup: 20210303-161259F
+            timestamp start/stop: 2021-03-03 16:12:59 / 2021-03-03 16:13:02
+            wal start/stop: 00000001000000000000000E / 00000001000000000000000E
+            database size: 24.9MB, database backup size: 24.9MB
+            repo2: backup set size: 2.9MB, backup size: 2.9MB
 
-        incr backup: 20210224-150449F_20210224-150511I
-            timestamp start/stop: 2021-02-24 15:05:11 / 2021-02-24 15:05:12
-            wal start/stop: 000000010000000000000010 / 000000010000000000000010
-            database size: 23.1MB, database backup size: 52.2KB
-            repo2: backup set size: 2.8MB, backup size: 4.4KB
-            backup reference list: 20210224-150449F
-
+        incr backup: 20210303-161259F_20210303-161400I
+            timestamp start/stop: 2021-03-03 16:14:00 / 2021-03-03 16:14:01
+            wal start/stop: 000000010000000000000012 / 000000010000000000000012
+            database size: 25MB, database backup size: 1.9MB
+            repo2: backup set size: 2.9MB, backup size: 30.4KB
+            backup reference list: 20210303-161259F
 ```
 
 Fix it by taking a new backup:
@@ -350,15 +441,13 @@ Fix it by taking a new backup:
 $ pgbackrest backup --stanza=my_stanza --type=full --repo=1
 P00   INFO: backup command begin 2.33dev: ...
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 000000010000000000000012, lsn = 0/12000028
-P00   INFO: full backup size = 23.1MB
+P00   INFO: backup start archive = 000000010000000000000018, lsn = 0/18000028
+P00   INFO: full backup size = 25.1MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 000000010000000000000012, lsn = 0/12000138
-P00   INFO: check archive for segment(s) 000000010000000000000012:000000010000000000000012
-P00   INFO: new backup label = 20210224-152813F
+P00   INFO: backup stop archive = 000000010000000000000018, lsn = 0/18000100
+P00   INFO: check archive for segment(s) 000000010000000000000018:000000010000000000000018
+P00   INFO: new backup label = 20210303-162404F
 P00   INFO: backup command end: completed successfully
-P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: expire command end: completed successfully
 ```
 
 ### Expire Command
@@ -368,19 +457,17 @@ In fact, the impact on the `expire` command is pretty simple: it can run with or
 > Tip: taking some backups using the `--no-expire-auto` option allows to look at how the `expire` command works afterwards.
 
 ```bash
-$ pgbackrest expire --stanza=my_stanza --set=20210224-153348F
+$ pgbackrest expire --stanza=my_stanza --set=20210303-161259F
 P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: repo1: expire adhoc backup 20210224-153348F
-P00   INFO: repo1: remove expired backup 20210224-153348F
+P00   INFO: repo2: expire adhoc backup set 20210303-161259F, 20210303-161259F_20210303-161400I
+P00   INFO: repo2: remove expired backup 20210303-161259F_20210303-161400I
+P00   INFO: repo2: remove expired backup 20210303-161259F
 P00   INFO: expire command end: completed successfully
 
 $ pgbackrest expire --stanza=my_stanza
 P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: repo1: expire full backup 20210224-165110F
-P00   INFO: repo1: remove expired backup 20210224-165110F
-P00   INFO: repo2: expire full backup set 20210224-150449F, 20210224-150449F_20210224-150511I
-P00   INFO: repo2: remove expired backup 20210224-150449F_20210224-150511I
-P00   INFO: repo2: remove expired backup 20210224-150449F
+P00   INFO: repo1: expire full backup 20210303-162404F
+P00   INFO: repo1: remove expired backup 20210303-162404F
 P00   INFO: expire command end: completed successfully
 ```
 
@@ -400,40 +487,50 @@ INSERT 0 1
 $ pgbackrest backup --stanza=my_stanza --type=full --repo=1
 P00   INFO: backup command begin 2.33dev: ...
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 00000001000000000000001E, lsn = 0/1E000028
-P00   INFO: full backup size = 30.7MB
+P00   INFO: backup start archive = 000000010000000000000020, lsn = 0/20000060
+P00   INFO: full backup size = 32.8MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 00000001000000000000001E, lsn = 0/1E000100
-P00   INFO: check archive for segment(s) 00000001000000000000001E:00000001000000000000001E
-P00   INFO: new backup label = 20210224-171455F
+P00   INFO: backup stop archive = 000000010000000000000020, lsn = 0/20000138
+P00   INFO: check archive for segment(s) 000000010000000000000020:000000010000000000000020
+P00   INFO: new backup label = 20210303-163315F
 P00   INFO: backup command end: completed successfully
+P00   INFO: expire command begin 2.33dev: ... --repo=1 ...
+P00   INFO: repo1: expire full backup set 20210303-163023F, 20210303-163023F_20210303-163031I
+P00   INFO: repo1: remove expired backup 20210303-163023F_20210303-163031I
+P00   INFO: repo1: remove expired backup 20210303-163023F
+P00   INFO: expire command end: completed successfully
 
 $ psql -d test -c "INSERT INTO t1 VALUES (2);"
 INSERT 0 1
 $ pgbackrest backup --stanza=my_stanza --type=full --repo=2
 P00   INFO: backup command begin 2.33dev: ...
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 000000010000000000000020, lsn = 0/20000028
-P00   INFO: full backup size = 30.7MB
+P00   INFO: backup start archive = 000000010000000000000022, lsn = 0/22000028
+P00   INFO: full backup size = 32.9MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 000000010000000000000020, lsn = 0/20000100
-P00   INFO: check archive for segment(s) 000000010000000000000020:000000010000000000000020
-P00   INFO: new backup label = 20210224-171512F
+P00   INFO: backup stop archive = 000000010000000000000022, lsn = 0/22000100
+P00   INFO: check archive for segment(s) 000000010000000000000022:000000010000000000000022
+P00   INFO: new backup label = 20210303-163429F
 P00   INFO: backup command end: completed successfully
+P00   INFO: expire command begin 2.33dev: ... --repo=2 ...
+P00   INFO: repo2: expire full backup set 20210303-163040F, 20210303-163040F_20210303-163051I
+P00   INFO: repo2: remove expired backup 20210303-163040F_20210303-163051I
+P00   INFO: repo2: remove expired backup 20210303-163040F
+P00   INFO: expire command end: completed successfully
 
 $ psql -c "select pg_create_restore_point('RP1');"
  pg_create_restore_point 
 -------------------------
- 0/A01A598
+ 0/230000C8
 (1 row)
 
 $ psql -Atc "select current_timestamp,current_setting('datestyle'),txid_current();"
-2021-02-24 17:19:19.55914+01|ISO, MDY|491
+2021-03-03 16:35:10.328261+01|ISO, MDY|490
 
 $ psql -d test -c "INSERT INTO t1 VALUES (3); SELECT pg_switch_wal();"
  pg_switch_wal 
 ---------------
- 0/21000138
+ 0/23000200
 (1 row)
 
 $ pgbackrest info --stanza=my_stanza
@@ -442,20 +539,24 @@ stanza: my_stanza
     cipher: none
 
     db (current)
-        wal archive min/max (13): 00000001000000000000001E/000000010000000000000021
+        wal archive min/max (13): 000000010000000000000020/000000010000000000000023
 
-        full backup: 20210224-171455F
-            timestamp start/stop: 2021-02-24 17:14:55 / 2021-02-24 17:14:59
-            wal start/stop: 00000001000000000000001E / 00000001000000000000001E
-            database size: 30.7MB, database backup size: 30.7MB
+        full backup: 20210303-163315F
+            timestamp start/stop: 2021-03-03 16:33:15 / 2021-03-03 16:33:18
+            wal start/stop: 000000010000000000000020 / 000000010000000000000020
+            database size: 32.8MB, database backup size: 32.8MB
             repo1: backup set size: 3.8MB, backup size: 3.8MB
 
-        full backup: 20210224-171512F
-            timestamp start/stop: 2021-02-24 17:15:12 / 2021-02-24 17:15:16
-            wal start/stop: 000000010000000000000020 / 000000010000000000000020
-            database size: 30.7MB, database backup size: 30.7MB
+        full backup: 20210303-163429F
+            timestamp start/stop: 2021-03-03 16:34:29 / 2021-03-03 16:34:32
+            wal start/stop: 000000010000000000000022 / 000000010000000000000022
+            database size: 32.9MB, database backup size: 32.9MB
             repo2: backup set size: 3.8MB, backup size: 3.8MB
 ```
+
+As you can see in the example above, the `backup` command automatically triggers the `expire` command on the repository where we took our backup. That means it won't expire anything in the other repositories unless you request a new backup there or execute the `expire` command manually.
+
+Since the default retention policy is based on a number of backups, it is safe and healthy that only new backups are affecting the backups and archives to expire.
 
 ### Restore Command
 
@@ -466,15 +567,15 @@ For PITR, `--type=time` must be provided and the target time specified with the 
 ```bash
 $ mkdir /tmp/restored_data
 $ pgbackrest restore --stanza=my_stanza --target="RP1" --type=name --no-delta --pg1-path=/tmp/restored_data
-P00   INFO: repo1: restore backup set 20210224-171455F
+P00   INFO: repo1: restore backup set 20210303-163315F
 
 $ rm -rf /tmp/restored_data/*
-$ pgbackrest restore --stanza=my_stanza --target="2021-02-24 17:19:19.55914+01" --type=time --no-delta --pg1-path=/tmp/restored_data
-P00   INFO: repo1: restore backup set 20210224-171455F
+$ pgbackrest restore --stanza=my_stanza --target="2021-03-03 16:35:10.328261" --type=time --no-delta --pg1-path=/tmp/restored_data
+P00   INFO: repo1: restore backup setup 20210303-163315F
 
 $ rm -rf /tmp/restored_data/* 
 $ pgbackrest restore --stanza=my_stanza --target="RP1" --type=name --no-delta --pg1-path=/tmp/restored_data --repo=2
-P00   INFO: repo2: restore backup set 20210224-171512F
+P00   INFO: repo2: restore backup set 20210303-163429F
 ```
 
 Even if the backup in **repo2** is newer, the first match found for our time target is kept. Let's take a new backup in **repo1** to check if pgBackRest will auto-select the backup in **repo2**:
@@ -483,17 +584,13 @@ Even if the backup in **repo2** is newer, the first match found for our time tar
 $ pgbackrest backup --stanza=my_stanza --type=full --repo=1
 P00   INFO: backup command begin 2.33dev: ...
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes
-P00   INFO: backup start archive = 000000010000000000000024, lsn = 0/24000028
-P00   INFO: full backup size = 30.7MB
+P00   INFO: backup start archive = 000000010000000000000025, lsn = 0/25000028
+P00   INFO: full backup size = 32.9MB
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 000000010000000000000024, lsn = 0/24000100
-P00   INFO: check archive for segment(s) 000000010000000000000024:000000010000000000000024
-P00   INFO: new backup label = 20210224-172601F
+P00   INFO: backup stop archive = 000000010000000000000025, lsn = 0/25000138
+P00   INFO: check archive for segment(s) 000000010000000000000025:000000010000000000000025
+P00   INFO: new backup label = 20210303-165540F
 P00   INFO: backup command end: completed successfully
-P00   INFO: expire command begin 2.33dev: ...
-P00   INFO: repo1: expire full backup 20210224-171455F
-P00   INFO: repo1: remove expired backup 20210224-171455F
-P00   INFO: expire command end: completed successfully
 
 $ pgbackrest info --stanza=my_stanza
 stanza: my_stanza
@@ -501,22 +598,22 @@ stanza: my_stanza
     cipher: none
 
     db (current)
-        wal archive min/max (13): 000000010000000000000020/000000010000000000000024
+        wal archive min/max (13): 000000010000000000000022/000000010000000000000025
 
-        full backup: 20210224-171512F
-            timestamp start/stop: 2021-02-24 17:15:12 / 2021-02-24 17:15:16
-            wal start/stop: 000000010000000000000020 / 000000010000000000000020
-            database size: 30.7MB, database backup size: 30.7MB
+        full backup: 20210303-163429F
+            timestamp start/stop: 2021-03-03 16:34:29 / 2021-03-03 16:34:32
+            wal start/stop: 000000010000000000000022 / 000000010000000000000022
+            database size: 32.9MB, database backup size: 32.9MB
             repo2: backup set size: 3.8MB, backup size: 3.8MB
 
-        full backup: 20210224-172601F
-            timestamp start/stop: 2021-02-24 17:26:01 / 2021-02-24 17:26:05
-            wal start/stop: 000000010000000000000024 / 000000010000000000000024
-            database size: 30.7MB, database backup size: 30.7MB
+        full backup: 20210303-165540F
+            timestamp start/stop: 2021-03-03 16:55:40 / 2021-03-03 16:55:44
+            wal start/stop: 000000010000000000000025 / 000000010000000000000025
+            database size: 32.9MB, database backup size: 32.9MB
             repo1: backup set size: 3.8MB, backup size: 3.8MB
 
 $ rm -rf /tmp/restored_data/*
-$ pgbackrest restore --stanza=my_stanza --target="2021-02-24 17:19:19.55914" --type=time --no-delta --pg1-path=/tmp/restored_data
+$ pgbackrest restore --stanza=my_stanza --target="2021-03-03 16:35:10.328261" --type=time --no-delta --pg1-path=/tmp/restored_data
 P00   INFO: repo2: restore backup set 20210224-171512F
 ```
 
@@ -531,9 +628,9 @@ root# systemctl stop postgresql-13
 $ mv /var/lib/pgsql/13/data /var/lib/pgsql/13/data.orig
 $ mkdir -m 700 /var/lib/pgsql/13/data
 
-$ pgbackrest restore --stanza=my_stanza --target="2021-02-24 17:19:19.55914" --type=time --no-delta
+$ pgbackrest restore --stanza=my_stanza --target="2021-03-03 16:35:10.328261" --type=time --no-delta --target-action=promote
 P00   INFO: restore command begin 2.33dev: ...
-P00   INFO: repo2: restore backup set 20210224-171512F
+P00   INFO: repo2: restore backup set 20210303-163429F
 P00   INFO: write updated /var/lib/pgsql/13/data/postgresql.auto.conf
 P00   INFO: restore global/pg_control (performed last to ensure aborted restores cannot be started)
 P00   INFO: restore command end: completed successfully
@@ -544,17 +641,14 @@ restore_command = 'pgbackrest --stanza=my_stanza archive-get %f "%p"'
 root# systemctl start postgresql-13
 $ cat /var/lib/pgsql/13/data/log/postgresql-*.log
 ...
-LOG:  starting point-in-time recovery to 2021-02-24 17:19:19.55914+01
-P00   INFO: found 000000010000000000000020 in the repo2: 13-1 archive
-P00   INFO: found 000000010000000000000021 in the repo2: 13-1 archive
+LOG:  starting point-in-time recovery to 2021-03-03 16:35:10.328261+01
 P00   INFO: found 000000010000000000000022 in the repo2: 13-1 archive
-LOG:  recovery stopping before commit of transaction 491, time 2021-02-24 17:19:19.561041+01
-LOG:  redo done at 0/22000128
-LOG:  last completed transaction was at log time 2021-02-24 17:15:31.438799+01
+P00   INFO: found 000000010000000000000023 in the repo2: 13-1 archive
+LOG:  recovery stopping before commit of transaction 490, time 2021-03-03 16:35:10.330246+01
+LOG:  redo done at 0/23000100
 P00   INFO: unable to find 00000002.history in the archive
 LOG:  selected new timeline ID: 2
 LOG:  archive recovery complete
-P00   INFO: unable to find 00000001.history in the archive
 P00   INFO: pushed WAL file '00000002.history' to the archive
 
 $ ls /var/lib/pgbackrest/repo*/archive/my_stanza/13-1/00000002.history 
@@ -562,15 +656,15 @@ $ ls /var/lib/pgbackrest/repo*/archive/my_stanza/13-1/00000002.history
 /var/lib/pgbackrest/repo2/archive/my_stanza/13-1/00000002.history
 ```
 
-PG found the WALs needed for recovery in our **repo2**, picked a new timeline and pushed the history file to the repositories. 
+PostgreSQL found the WALs needed for recovery in our **repo2**, picked a new timeline and pushed the history file to the repositories. 
 
 ```bash
 root# systemctl stop postgresql-13
 $ rm -rf /var/lib/pgsql/13/data/*
 $ rm -rf /var/lib/pgbackrest/repo1/archive/my_stanza/13-1/00000002.history
-$ pgbackrest restore --stanza=my_stanza --target="2021-02-24 17:19:19.55914" --type=time --target-timeline=current --no-delta
+$ pgbackrest restore --stanza=my_stanza --target="2021-03-03 16:35:10.328261" --type=time --target-timeline=current --no-delta --target-action=promote
 P00   INFO: restore command begin 2.33dev: ...
-P00   INFO: repo2: restore backup set 20210224-171512F
+P00   INFO: repo2: restore backup set 20210303-163429F
 P00   INFO: write updated /var/lib/pgsql/13/data/postgresql.auto.conf
 P00   INFO: restore global/pg_control (performed last to ensure aborted restores cannot be started)
 P00   INFO: restore command end: completed successfully
@@ -589,7 +683,7 @@ Let's retry it by moving the history file in **repo1** now.
 root# systemctl stop postgresql-13
 $ rm -rf /var/lib/pgsql/13/data/*
 $ mv /var/lib/pgbackrest/repo2/archive/my_stanza/13-1/00000002.history /var/lib/pgbackrest/repo1/archive/my_stanza/13-1/00000002.history
-$ pgbackrest restore --stanza=my_stanza --target="2021-02-24 17:19:19.55914" --type=time --target-timeline=current --no-delta
+$ pgbackrest restore --stanza=my_stanza --target="2021-03-03 16:35:10.328261" --type=time --target-timeline=current --no-delta --target-action=promote
 root# systemctl start postgresql-13
 $ cat /var/lib/pgsql/13/data/log/postgresql-*.log
 P00   INFO: found 00000002.history in the repo1: 13-1 archive
@@ -599,7 +693,7 @@ LOG:  selected new timeline ID: 4
 P00   INFO: pushed WAL file '00000004.history' to the archive
 ```
 
-As we can see above, both `00000002.history` and `00000003.history` have been found in **repo1** so PG could pick the next timeline correctly.
+As we can see above, both `00000002.history` and `00000003.history` have been found in **repo1** so PostgreSQL could pick the next timeline correctly.
 
 The `archive-get` enhancement really seems promising mainly because we could have gaps in one repository (due to lack of disk space e.g.) but it would still be able to find it in the other repository.
 
