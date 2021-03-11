@@ -18,3 +18,6 @@ permalink: /talks/
 * 2020-01-28 - FR - Meetup PG Lille : [pgBackRest Schrödinger's backups](https://pgstef.github.io/talks/fr/20200128_meetup_pgbackrest-schrodingers-backups.reveal.pdf)
 * 2020-03-05 - EN - Meetup PG Belgium : [Point-in-time Recovery, target 2020](https://pgstef.github.io/talks/en/20200305_meetup_pitr-target-2020.reveal.pdf)
 
+### 2021
+
+* 2021-03-11 - EN - PostgreSQL User group NL : [Unleash the Power within pgBackRest](https://pgstef.github.io/talks/en/20210311_meetup_Unleash-the-Power-within-pgBackRest.reveal.pdf)
