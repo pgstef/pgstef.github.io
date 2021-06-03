@@ -1,7 +1,6 @@
 ---
 layout: post
 title: pgBackRest and SUSE
-draft: true
 ---
 
 I got the question the other day from a friend: "does pgBackRest work on SUSE?".
