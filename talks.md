@@ -20,4 +20,5 @@ permalink: /talks/
 
 ### 2021
 
-* 2021-03-11 - EN - PostgreSQL User group NL : [Unleash the Power within pgBackRest](https://pgstef.github.io/talks/en/20210311_meetup_Unleash-the-Power-within-pgBackRest.reveal.pdf)
+* 2021-03-11 - EN - PostgreSQL User group NL : ***Unleash the Power within pgBackRest***
+* 2021-07-09 - EN - pgDay Russia : [Unleash the Power within pgBackRest](https://pgstef.github.io/talks/en/20210709_pgdayru_Unleash-the-Power-within-pgBackRest.pdf)
