@@ -13,7 +13,7 @@ excerpt_separator: "<!--MORE-->"
 paginate: 10
 paginate_path: "page:num"
 exclude: ["README.md", "syntax.md", "_drafts/template.md"]
-show_drafts: true
+show_drafts: false
 
 plugins:
   - jekyll-feed
