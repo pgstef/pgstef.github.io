@@ -1,4 +1,8 @@
-# TLS Server
+---
+layout: post
+title: pgBackRest and TLS connections
+draft: true
+---
 
 The TLS server is an alternative to using SSH for protocol connections to remote hosts.
 It has been pushed in the [2.37](https://github.com/pgbackrest/pgbackrest/releases/tag/release%2F2.37) release on 3 Jan 2022.
@@ -37,12 +41,12 @@ On all the servers, first configure the PGDG repositories:
 
 ```bash
 $ sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+$ sudo dnf -qy module disable postgresql
 ```
 
 Then, install PostgreSQL on **pg1-srv**, **pg2-srv**, **pg3-srv**: 
 
 ```bash
-$ sudo dnf -qy module disable postgresql
 $ sudo dnf install -y postgresql14-server postgresql14-contrib
 ```
 
@@ -213,7 +217,6 @@ already, create a service file on the **backup-srv** server:
 # /etc/systemd/system/pgbackrest.service
 [Unit]
 Description=pgBackRest Server
-Documentation=https://pgbackrest.org/configuration.html
 After=network.target
 StartLimitIntervalSec=0
 
@@ -224,8 +227,6 @@ Restart=always
 RestartSec=1
 ExecStart=/usr/bin/pgbackrest server
 ExecReload=kill -HUP $MAINPID
-KillMode=mixed
-KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
@@ -237,7 +238,6 @@ Start the server and check it's running:
 $ sudo systemctl daemon-reload
 $ sudo systemctl enable pgbackrest
 $ sudo systemctl start pgbackrest
-$ sudo systemctl status pgbackrest
 $ pgbackrest server-ping
 ```
 
@@ -251,7 +251,6 @@ Now, apply the same steps (service configuration and start) on the on **pg1-srv*
 # /etc/systemd/system/pgbackrest.service
 [Unit]
 Description=pgBackRest Server
-Documentation=https://pgbackrest.org/configuration.html
 After=network.target
 StartLimitIntervalSec=0
 
@@ -262,8 +261,6 @@ Restart=always
 RestartSec=1
 ExecStart=/usr/bin/pgbackrest server
 ExecReload=kill -HUP $MAINPID
-KillMode=mixed
-KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
@@ -306,12 +303,12 @@ $ sudo -iu pgbackrest pgbackrest --stanza=demo --type=full backup
 P00   INFO: backup command begin 2.37: ..
 P00   INFO: execute non-exclusive pg_start_backup(): backup begins after the requested
                                                              immediate checkpoint completes
-P00   INFO: backup start archive = 000000010000000000000002, lsn = 0/2000028
-P00   INFO: check archive for segment 000000010000000000000002
+P00   INFO: backup start archive = 000000010000000000000003, lsn = 0/3000028
+P00   INFO: check archive for prior segment 000000010000000000000002
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
-P00   INFO: backup stop archive = 000000010000000000000003, lsn = 0/3000088
-P00   INFO: check archive for segment(s) 000000010000000000000002:000000010000000000000003
-P00   INFO: new backup label = 20220111-095427F
+P00   INFO: backup stop archive = 000000010000000000000003, lsn = 0/3000100
+P00   INFO: check archive for segment(s) 000000010000000000000003:000000010000000000000003
+P00   INFO: new backup label = 20220218-080535F
 P00   INFO: full backup size = 25.2MB, file total = 951
 P00   INFO: backup command end: completed successfully
 ```
@@ -328,9 +325,9 @@ stanza: demo
     db (current)
         wal archive min/max (14): 000000010000000000000001/000000010000000000000003
 
-        full backup: 20220111-095427F
-            timestamp start/stop: 2022-01-11 09:54:27 / 2022-01-11 09:54:35
-            wal start/stop: 000000010000000000000002 / 000000010000000000000003
+        full backup: 20220218-080535F
+            timestamp start/stop: 2022-02-18 08:05:35 / 2022-02-18 08:05:42
+            wal start/stop: 000000010000000000000003 / 000000010000000000000003
             database size: 25.2MB, database backup size: 25.2MB
             repo1: backup set size: 3.2MB, backup size: 3.2MB
 
@@ -343,9 +340,9 @@ stanza: demo
     db (current)
         wal archive min/max (14): 000000010000000000000001/000000010000000000000003
 
-        full backup: 20220111-095427F
-            timestamp start/stop: 2022-01-11 09:54:27 / 2022-01-11 09:54:35
-            wal start/stop: 000000010000000000000002 / 000000010000000000000003
+        full backup: 20220218-080535F
+            timestamp start/stop: 2022-02-18 08:05:35 / 2022-02-18 08:05:42
+            wal start/stop: 000000010000000000000003 / 000000010000000000000003
             database size: 25.2MB, database backup size: 25.2MB
             repo1: backup set size: 3.2MB, backup size: 3.2MB
 ```
@@ -377,6 +374,7 @@ $ sudo systemctl reload postgresql-14.service
 Configure `~postgres/.pgpass` on **pg2-srv** and **pg3-srv**:
 
 ```bash
+$ sudo -iu postgres
 $ echo "*:*:replication:replic_user:mypwd" >> ~postgres/.pgpass
 $ chown postgres: ~postgres/.pgpass
 $ chmod 0600 ~postgres/.pgpass
@@ -400,7 +398,7 @@ Restore the backup taken from the **pg1-srv** server on **pg2-srv** and **pg3-sr
 ```bash
 $ sudo -iu postgres pgbackrest --stanza=demo --type=standby restore
 P00   INFO: restore command begin 2.37: ...
-P00   INFO: repo1: restore backup set 20220111-095427F, recovery will start at ...
+P00   INFO: repo1: restore backup set 20220218-080535F, recovery will start at ...
 P00   INFO: write updated /var/lib/pgsql/14/data/postgresql.auto.conf
 P00   INFO: restore global/pg_control
 (performed last to ensure aborted restores cannot be started)
@@ -428,9 +426,9 @@ If the replication setup is correct, you should see those processes on the **pg1
 
 ```
 # ps -ef |grep postgres
-postgres 1735    1 ... /usr/pgsql-14/bin/postmaster -D /var/lib/pgsql/14/data/
-postgres 1947 1735 ... postgres: walsender replic_user ... streaming 0/4000CE0
-postgres 1948 1735 ... postgres: walsender replic_user ... streaming 0/4000CE0
+postgres 26108   1 ... /usr/pgsql-14/bin/postmaster -D /var/lib/pgsql/14/data/
+postgres 26506 26108 ... postgres: walsender replic_user ... streaming 0/4000CE0
+postgres 26507 26108 ... postgres: walsender replic_user ... streaming 0/4000CE0
 ```
 
 We now have a 3-nodes cluster working with _Streaming Replication_ and archives recovery as safety net.
@@ -471,7 +469,14 @@ P00   INFO: check archive for prior segment 000000010000000000000004
 P00   INFO: execute non-exclusive pg_stop_backup() and wait for all WAL segments to archive
 P00   INFO: backup stop archive = 000000010000000000000005, lsn = 0/5000138
 P00   INFO: check archive for segment(s) 000000010000000000000005:000000010000000000000005
-P00   INFO: new backup label = 20220111-100417F
+P00   INFO: new backup label = 20220218-082239F
 P00   INFO: full backup size = 25.2MB, file total = 951
 P00   INFO: backup command end: completed successfully
 ```
+
+-----
+
+# Conclusion
+
+The TLS server provides an alternative to SSH for remote operations.
+This new feature will fit perfectly in a containerized world where it can significantly improve performance and user experience.
