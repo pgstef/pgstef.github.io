@@ -1,7 +1,6 @@
 ---
 layout: post
 title: pgBackRest and TLS connections
-draft: true
 ---
 
 The TLS server is an alternative to using SSH for protocol connections to remote hosts.
