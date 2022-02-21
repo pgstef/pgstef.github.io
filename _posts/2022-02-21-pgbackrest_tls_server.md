@@ -32,6 +32,8 @@ Vagrant.configure(2) do |config|
 end
 ```
 
+<!--MORE-->
+
 -----
 
 # Installation
