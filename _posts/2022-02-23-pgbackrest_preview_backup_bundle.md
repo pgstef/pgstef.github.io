@@ -1,7 +1,7 @@
 ---
 layout: post
 title: pgBackRest preview - Bundle files in the repository during backup
-draft: true
+date: 2022-02-23 09:00:00 +0100
 ---
 
 A nice new feature has been added on 14 Feb 2022: **Bundle files in the repository during backup**.
@@ -11,6 +11,8 @@ This feature combines smaller files during backup to reduce the number of files 
 Files are batched up to `--bundle-size` and then compressed/encrypted individually and stored sequentially in the bundle.
 `--bundle-limit` limits which files can be added to bundles. Files larger than this size will be stored separately.
 On backup [resume](https://pgbackrest.org/configuration.html#section-backup/option-resume), the bundles are removed and any remaining file is eligible to be resumed.
+
+> **IMPORTANT NOTE**: this feature is still experimental and will not be released in pgBackRest _2.38_.
 
 <!--MORE-->
 
@@ -58,9 +60,9 @@ Let's then take backups varying those values and compare the backup times:
 
 | Nb of files in PGDATA | full backup size | no-bundle | limit=2MiB<br/>size=10MiB | limit=2MiB<br/>size=20MiB | limit=5MiB<br/>size=50MiB | limit=10MiB<br/>size=100MiB | limit=100MiB<br/>size=1GiB |
 |-----------------------|------------------|-----------|---------------------------|---------------------------|---------------------------|-----------------------------|----------------------------|
-| 11369                 | 14.7GB           | 249824ms  | 251375ms                  | 256267ms                  | 263990ms                  | 273218ms                    | 272280ms                   |
-| 101361                | 15.2GB           | 335109ms  | 279292ms                  | 268947ms                  | 266971ms                  | 271746ms                    | 264178ms                   |
-| 1115512               | 17.8GB           | 1264790ms | 635817ms                  | 619751ms                  | 630988ms                  | 622868ms                    | 612054ms                   |
+| 11369                 | 14.7GB           | 249s      | 251s                      | 256s                      | 263s                      | 273s                        | 272s                       |
+| 101361                | 15.2GB           | 335s      | 279s                      | 268s                      | 266s                      | 271s                        | 264s                       |
+| 1115512               | 17.8GB           | 1264s     | 635s                      | 619s                      | 630s                      | 622s                        | 612s                       |
 
 Next to all the small tables, a simple pgbench database has been generated to increase the cluster size for this test.
 The backups have been taken locally and for the last run, all the small tables have been spread across several databases.
@@ -80,8 +82,8 @@ Given this feature might be even better on object-stores, let's drop the pgbench
 
 | Nb of files in PGDATA | full backup size | no-bundle | limit=2MiB<br/>size=10MiB | limit=2MiB<br/>size=20MiB | limit=5MiB<br/>size=50MiB | limit=10MiB<br/>size=100MiB | limit=100MiB<br/>size=1GiB |
 |-----------------------|------------------|-----------|---------------------------|---------------------------|---------------------------|-----------------------------|----------------------------|
-| 1115484 (local)       | 3.1GB            | 945221ms  | 170733ms                  | 166974ms                  | 169436ms                  | 168672ms                    | 167607ms                   |
-| 1115484 (S3)          | 3.1GB            | 6256286ms | 1370761ms                 | 1081109ms                 | 1064039ms                 | 1370543ms                   | 1221475ms                  |
+| 1115484 (local)       | 3.1GB            | 945s      | 170s                      | 166s                      | 169s                      | 168s                        | 167s                       |
+| 1115484 (S3)          | 3.1GB            | 6256s     | 1370s                     | 1081s                     | 1064s                     | 1370s                       | 1221s                      |
 
 Remark: all the tests have been run using `max-processes=2` but to make S3 backups run faster, the last test used `max-processes=12`.
 

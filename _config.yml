@@ -9,10 +9,11 @@ avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/
 twitter: pgstef
 email: pgstef@fercot.be
 
+timezone: Europe/Brussels
 excerpt_separator: "<!--MORE-->"
 paginate: 10
 paginate_path: "page:num"
-exclude: ["README.md", "syntax.md", "_drafts/template.md"]
+exclude: ["README.md", "syntax.md", "_drafts", "_drafts/template.md"]
 show_drafts: false
 
 plugins:
