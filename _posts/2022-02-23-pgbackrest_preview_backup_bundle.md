@@ -27,14 +27,14 @@ Using a simple bash script, let's generate plenty of small tables containing onl
 ```bash
 export NB_ROWS=1
 export NB_TABLES=100000
-export TABLE_NAME='test'
+export DB_NAME='test'
 
-sudo -iu postgres dropdb --if-exists $TABLE_NAME
-sudo -iu postgres createdb $TABLE_NAME
+sudo -iu postgres dropdb --if-exists $DB_NAME
+sudo -iu postgres createdb $DB_NAME
 
 for i in $(seq 1 $NB_TABLES); do
-    sudo -iu postgres psql -d $TABLE_NAME -c "CREATE TABLE IF NOT EXISTS t$i (id int);"
-    sudo -iu postgres psql -d $TABLE_NAME -c "INSERT INTO t1 SELECT generate_series(0, $NB_ROWS);"
+    sudo -iu postgres psql -d $DB_NAME -c "CREATE TABLE IF NOT EXISTS t$i (id int);"
+    sudo -iu postgres psql -d $DB_NAME -c "INSERT INTO t1 SELECT generate_series(0, $NB_ROWS);"
 done
 sudo -iu postgres psql -d $PGDATABASE -c "VACUUM ANALYSE;"
 sudo -iu postgres psql -d $PGDATABASE -c "CHECKPOINT;"
