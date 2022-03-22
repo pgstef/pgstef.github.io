@@ -23,3 +23,8 @@ permalink: /talks/
 * 2021-03-11 - EN - PostgreSQL User group NL : ***Unleash the Power within pgBackRest***
 * 2021-07-09 - EN - pgDay Russia : [Unleash the Power within pgBackRest](https://pgstef.github.io/talks/en/20210709_pgdayru_Unleash-the-Power-within-pgBackRest.pdf)
 * 2021-11-17 - FR - pgSession Paris : [Dépôts de sauvegarde multiples avec pgBackRest](https://pgstef.github.io/talks/fr/20211117_pgsession14_pgbackrest-multi-repo.reveal.pdf)
+
+### 2022
+
+* 2022-03-17 - EN - Meetup PG Belgium : ***Using multiple backup repositories with pgBackRest***
+* 2022-03-24 - EN - pgDay Paris : [Using multiple backup repositories with pgBackRest](20220324_pgDayParis_Using-multiple-backup-repositories-with-pgBackRest.pdf)
