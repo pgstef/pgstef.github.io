@@ -27,4 +27,4 @@ permalink: /talks/
 ### 2022
 
 * 2022-03-17 - EN - Meetup PG Belgium : ***Using multiple backup repositories with pgBackRest***
-* 2022-03-24 - EN - pgDay Paris : [Using multiple backup repositories with pgBackRest](20220324_pgDayParis_Using-multiple-backup-repositories-with-pgBackRest.pdf)
+* 2022-03-24 - EN - pgDay Paris : [Using multiple backup repositories with pgBackRest](https://pgstef.github.io/talks/en/20220324_pgDayParis_Using-multiple-backup-repositories-with-pgBackRest.pdf)
