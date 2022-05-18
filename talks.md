@@ -11,7 +11,7 @@ permalink: /talks/
 
 ### 2019
 
-* 2019-05-17 - FR - PGDay Belgium (pgconf.be) : [Streaming Replication, the basics](https://pgstef.github.io/talks/en/20190517_pgconfBE_Streaming-Replication.reveal.pdf)
+* 2019-05-17 - FR - PGConf Belgium : [Streaming Replication, the basics](https://pgstef.github.io/talks/en/20190517_pgconfBE_Streaming-Replication.reveal.pdf)
 
 ### 2020
 
@@ -28,3 +28,4 @@ permalink: /talks/
 
 * 2022-03-17 - EN - Meetup PG Belgium : ***Using multiple backup repositories with pgBackRest***
 * 2022-03-24 - EN - pgDay Paris : [Using multiple backup repositories with pgBackRest](https://pgstef.github.io/talks/en/20220324_pgDayParis_Using-multiple-backup-repositories-with-pgBackRest.pdf)
+* 2022-05-19 - EN - PGConf Belgium : [Point-in-time Recovery, target 2022](https://pgstef.github.io/talks/en/20220519_pgconfBE_pitr-target-2022)
