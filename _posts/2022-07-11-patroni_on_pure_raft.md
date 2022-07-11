@@ -2,7 +2,6 @@
 layout: post
 title: Patroni on pure Raft
 date: 2022-07-11 09:00:00 +0200
-draft: true
 ---
 
 Since September 2020 and its 2.0 release, [Patroni](https://github.com/zalando/patroni) is able to rely on the pysyncobj module in order to use python Raft implementation as DCS.
