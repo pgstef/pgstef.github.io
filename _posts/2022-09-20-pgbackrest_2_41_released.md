@@ -1,7 +1,7 @@
 ---
 layout: post
 title: pgBackRest 2.41 released
-date: 2022-09-20 17:30:00 +0200
+date: 2022-09-20 18:00:00 +0200
 ---
 
 With pgBackRest [2.41](https://github.com/pgbackrest/pgbackrest/releases/tag/release/2.41) just released, a new feature called **backup annotations** is now available.
@@ -104,5 +104,8 @@ annotation(s)
     new-comment: just a backup
 ```
 
-It is now your turn to update your pgBackRest version and try this new feature :-)
+-----
 
+# Conclusion
+
+It is now your turn to update your pgBackRest version and try this new feature :-)
