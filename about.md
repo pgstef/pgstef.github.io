@@ -10,7 +10,7 @@ permalink: /about/
 * Job : {{ site.work }}
 * Company : [{{ site.company }}](https://www.enterprisedb.com/)
 * Twitter : [{{ site.twitter }}](http://twitter.com/{{ site.twitter }})
-* Mastodon : [{{ site.mastodon }}](https://fosstodon.org/@pgstef)
+* Mastodon : [{{ site.mastodon }}](https://fosstodon.org/@pgstef){rel="me"}
 
 ### More Information
 
