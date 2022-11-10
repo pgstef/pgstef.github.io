@@ -8,7 +8,7 @@ company: EDB
 avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
 twitter: pgstef
 email: pgstef@fercot.be
-mastodon: @pgstef@fosstodon.org
+mastodon: "@pgstef@fosstodon.org"
 
 timezone: Europe/Brussels
 excerpt_separator: "<!--MORE-->"
