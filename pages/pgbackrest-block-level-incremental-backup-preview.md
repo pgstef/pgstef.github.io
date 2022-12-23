@@ -4,7 +4,7 @@ Block incremental backup is currently a work in progress and even though the pri
 
 This test scenario will first have to look at the backup command by creating some tables containing 10'000'000 rows each and comparing incremental backups after removing 100'000 (1%) of it, using various compression types.
 
-Then, we'll focus on the restore command comparing file-level, block-level and block-level + file bundles incremental backups.
+Then, we'll focus on the restore command comparing file-level and block-level incremental backups.
 
 -----
 
@@ -72,7 +72,7 @@ pgbackrest --stanza=my_stanza --type=incr backup
 Doing the same using the new `repo-block` option:
 
 ```bash
-pgbackrest --stanza=my_stanza --type=full backup --repo1-block
+pgbackrest --stanza=my_stanza --type=full backup --repo1-block --repo1-bundle
 
 psql -d test -c "DELETE FROM test1 WHERE aid between 300000 and 400000;"
 psql -d test -c "DELETE FROM test2 WHERE aid between 1300000 and 1400000;"
@@ -86,7 +86,7 @@ psql -d test -c "DELETE FROM test9 WHERE aid between 8300000 and 8400000;"
 psql -d test -c "DELETE FROM test10 WHERE aid between 9300000 and 9400000;"
 psql -d test -c "VACUUM ANALYSE;"
 
-pgbackrest --stanza=my_stanza --type=incr backup --repo1-block
+pgbackrest --stanza=my_stanza --type=incr backup --repo1-block --repo1-bundle
 ```
 
 -----
@@ -103,65 +103,58 @@ compress-level=6
 Here's the info output containing our backups:
 
 ```
-full backup: 20221121-101408F
-    timestamp start/stop: 2022-11-21 10:14:08 / 2022-11-21 10:16:52
-    wal start/stop: 0000000100000007000000F8 / 000000010000000800000093
-    database size: 14.0GB, database backup size: 14.0GB
-    repo1: backup set size: 547.0MB, backup size: 547.0MB
-
-incr backup: 20221121-101408F_20221121-102631I
-    timestamp start/stop: 2022-11-21 10:26:31 / 2022-11-21 10:27:48
-    wal start/stop: 000000010000000A00000012 / 000000010000000A00000012
-    database size: 14GB, database backup size: 11.5GB
-    repo1: backup set size: 547MB, backup size: 425.2MB
-    backup reference list: 20221121-101408F, 20221121-101408F_20221121-102631I
-
-full backup: 20221121-103008F
-    timestamp start/stop: 2022-11-21 10:30:08 / 2022-11-21 10:31:43
-    wal start/stop: 000000010000000A00000014 / 000000010000000A00000014
+full backup: 20221223-095108F
+    timestamp start/stop: 2022-12-23 09:51:08 / 2022-12-23 09:52:47
+    wal start/stop: 00000001000000B30000000A / 00000001000000B30000003E
     database size: 14GB, database backup size: 14GB
-    repo1: backup set size: 553.3MB, backup size: 553.3MB
+    repo1: backup set size: 547.3MB, backup size: 547.3MB
 
-incr backup: 20221121-103008F_20221121-103551I
-    timestamp start/stop: 2022-11-21 10:35:51 / 2022-11-21 10:36:14
-    wal start/stop: 000000010000000A00000021 / 000000010000000A00000021
+incr backup: 20221223-095108F_20221223-095726I
+    timestamp start/stop: 2022-12-23 09:57:26 / 2022-12-23 09:59:11
+    wal start/stop: 00000001000000B8000000BF / 00000001000000B8000000BF
+    database size: 14GB, database backup size: 12.5GB
+    repo1: backup set size: 547.4MB, backup size: 462.3MB
+    backup reference list: 20221223-095108F
+
+full backup: 20221223-095912F
+    timestamp start/stop: 2022-12-23 09:59:12 / 2022-12-23 10:00:54
+    wal start/stop: 00000001000000B8000000C1 / 00000001000000B8000000C1
+    database size: 14GB, database backup size: 14GB
+    repo1: backup set size: 553.6MB, backup size: 553.6MB
+
+incr backup: 20221223-095912F_20221223-100110I
+    timestamp start/stop: 2022-12-23 10:01:10 / 2022-12-23 10:01:34
+    wal start/stop: 00000001000000B8000000CE / 00000001000000B8000000CE
     database size: 14GB, database backup size: 8.5GB
-    repo1: backup set size: 241.2MB, backup size: 5.3MB
-    backup reference list: 20221121-103008F, 20221121-103008F_20221121-103551I
+    repo1: backup set size: 241.3MB, backup size: 5.4MB
+    backup reference list: 20221223-095912F
 ```
 
 Let's compare disk space usage of the file-level and block-level incremental backups:
 
 ```bash
-$ du -hs 20221121-101408F_20221121-102631I/pg_data/base/16388
-426M	20221121-101408F_20221121-102631I/pg_data/base/16388
+$ du -hs 20221223-095108F_20221223-095726I/pg_data/base/404338
+463M    20221223-095108F_20221223-095726I/pg_data/base/404338
 
-$ du -hs 20221121-103008F_20221121-103551I/pg_data/base/16388
-5.5M	20221121-103008F_20221121-103551I/pg_data/base/16388
+$ du -hs 20221223-095912F_20221223-100110I/pg_data/base/404338
+5.3M    20221223-095912F_20221223-100110I/pg_data/base/404338
 ```
 
 Internally, new fields have been added to the backup manifest to store the blocks map:
 
 ```bash
-$ cat 20221121-101408F_20221121-102631I/backup.manifest | grep 16451
-pg_data/base/16388/16451=
-    {"checksum":"0105f13b7e717214c49d03dc1dfa1f5eb13a86b1","checksum-page":true,
-    "repo-size":38726325,"size":1073741824,"timestamp":1669026392}
-pg_data/base/16388/16451.1=
-    {"checksum":"72a63d36e49e540602ad41d42d630c433be93414","checksum-page":true,
-    "repo-size":9709769,"size":269213696,"timestamp":1669025951}
-...
-
-$ cat 20221121-103008F_20221121-103551I/backup.manifest | grep 16451
-pg_data/base/16388/16451=
-    {"bims":21528,"bis":128,
-    "checksum":"807df11a61b071d3f5aeb4d9fa2879d718af64e2","checksum-page":true,
-    "repo-size":553866,"size":1073741824,"timestamp":1669026951}
-pg_data/base/16388/16451.1=
+$ cat 20221223-095912F_20221223-100110I/backup.manifest |grep 404338/404361
+pg_data/base/404338/404361.1=
     {"bims":7212,"bis":96,
-    "checksum":"72a63d36e49e540602ad41d42d630c433be93414","checksum-page":true,
-    "reference":"20221121-103008F",
-    "repo-size":9848182,"size":269213696,"timestamp":1669025951}
+    "checksum":"27fd785e3214eafbd8a89050068caba1fa406e60","checksum-page":true,
+    "rck":"8adbc1acf55eb02af6ff3f7680695c7a2147eb12",
+    "reference":"20221223-095912F",
+    "repo-size":9850013,"size":269213696,"timestamp":1671789267}
+pg_data/base/404338/404361_fsm=
+    {"bims":78,"bis":16,"bni":2,"bno":13650,
+    "checksum":"7471bdd5cb764513c7e8bfbe921a11f303a08c43","checksum-page":true,
+    "rck":"0328231665bb8917f36a48c3fde952a1801078fc",
+    "repo-size":871,"size":352256,"timestamp":1671789670}
 ```
 
 -----
@@ -178,41 +171,41 @@ compress-level=1
 Here's the info output containing our backups:
 
 ```
-full backup: 20221121-151247F
-    timestamp start/stop: 2022-11-21 15:12:47 / 2022-11-21 15:13:12
-    wal start/stop: 000000010000001C00000086 / 000000010000001C0000009C
-    database size: 14.0GB, database backup size: 14.0GB
-    repo1: backup set size: 985.4MB, backup size: 985.4MB
-
-incr backup: 20221121-151247F_20221121-152137I
-    timestamp start/stop: 2022-11-21 15:21:37 / 2022-11-21 15:22:01
-    wal start/stop: 0000000100000021000000C2 / 0000000100000021000000C2
-    database size: 14GB, database backup size: 12.5GB
-    repo1: backup set size: 985.6MB, backup size: 817.6MB
-    backup reference list: 20221121-151247F, 20221121-151247F_20221121-152137I
-
-full backup: 20221121-152240F
-    timestamp start/stop: 2022-11-21 15:22:40 / 2022-11-21 15:23:08
-    wal start/stop: 0000000100000021000000C4 / 0000000100000021000000C4
+full backup: 20221223-101100F
+    timestamp start/stop: 2022-12-23 10:11:00 / 2022-12-23 10:11:26
+    wal start/stop: 00000001000000BC000000ED / 00000001000000BD00000001
     database size: 14GB, database backup size: 14GB
-    repo1: backup set size: 990.7MB, backup size: 990.7MB
+    repo1: backup set size: 986.0MB, backup size: 986.0MB
 
-incr backup: 20221121-152240F_20221121-152356I
-    timestamp start/stop: 2022-11-21 15:23:56 / 2022-11-21 15:24:18
-    wal start/stop: 0000000100000021000000D1 / 0000000100000021000000D1
+incr backup: 20221223-101100F_20221223-101601I
+    timestamp start/stop: 2022-12-23 10:16:01 / 2022-12-23 10:16:25
+    wal start/stop: 00000001000000C200000089 / 00000001000000C200000089
+    database size: 14GB, database backup size: 12.5GB
+    repo1: backup set size: 985.9MB, backup size: 817.5MB
+    backup reference list: 20221223-101100F
+
+full backup: 20221223-101626F
+    timestamp start/stop: 2022-12-23 10:16:26 / 2022-12-23 10:16:53
+    wal start/stop: 00000001000000C20000008A / 00000001000000C20000008A
+    database size: 14GB, database backup size: 14GB
+    repo1: backup set size: 990.8MB, backup size: 990.8MB
+
+incr backup: 20221223-101626F_20221223-101708I
+    timestamp start/stop: 2022-12-23 10:17:08 / 2022-12-23 10:17:31
+    wal start/stop: 00000001000000C200000097 / 00000001000000C200000097
     database size: 14GB, database backup size: 8.5GB
-    repo1: backup set size: 441.4MB, backup size: 9.1MB
-    backup reference list: 20221121-152240F, 20221121-152240F_20221121-152356I
+    repo1: backup set size: 441.6MB, backup size: 9.1MB
+    backup reference list: 20221223-101626F
 ```
 
 Let's compare disk space usage of the file-level and block-level incremental backups:
 
 ```bash
-$ du -hs 20221121-151247F_20221121-152137I/pg_data/base/24649
-818M    20221121-151247F_20221121-152137I/pg_data/base/24649
+$ du -hs 20221223-101100F_20221223-101601I/pg_data/base/404407
+818M    20221223-101100F_20221223-101601I/pg_data/base/404407
 
-$ du -hs 20221121-152240F_20221121-152356I/pg_data/base/24649
-9.3M    20221121-152240F_20221121-152356I/pg_data/base/24649
+$ du -hs 20221223-101626F_20221223-101708I/pg_data/base/404407
+9.0M    20221223-101626F_20221223-101708I/pg_data/base/404407
 ```
 
 -----
@@ -229,41 +222,41 @@ compress-level=3
 Here's the info output containing our backups:
 
 ```
-full backup: 20221121-145505F
-    timestamp start/stop: 2022-11-21 14:55:05 / 2022-11-21 14:55:36
-    wal start/stop: 0000000100000013000000C6 / 0000000100000013000000DD
-    database size: 14.0GB, database backup size: 14.0GB
-    repo1: backup set size: 421.9MB, backup size: 421.9MB
-
-incr backup: 20221121-145505F_20221121-150035I
-    timestamp start/stop: 2022-11-21 15:00:35 / 2022-11-21 15:01:03
-    wal start/stop: 000000010000001800000037 / 000000010000001800000037
-    database size: 14GB, database backup size: 12.5GB
-    repo1: backup set size: 424MB, backup size: 352.9MB
-    backup reference list: 20221121-145505F, 20221121-145505F_20221121-150035I
-
-full backup: 20221121-150151F
-    timestamp start/stop: 2022-11-21 15:01:51 / 2022-11-21 15:02:21
-    wal start/stop: 000000010000001800000039 / 000000010000001800000039
+full backup: 20221223-102321F
+    timestamp start/stop: 2022-12-23 10:23:21 / 2022-12-23 10:23:53
+    wal start/stop: 00000001000000C6000000BA / 00000001000000C6000000D0
     database size: 14GB, database backup size: 14GB
-    repo1: backup set size: 374.5MB, backup size: 374.5MB
+    repo1: backup set size: 422.2MB, backup size: 422.2MB
 
-incr backup: 20221121-150151F_20221121-150411I
-    timestamp start/stop: 2022-11-21 15:04:11 / 2022-11-21 15:04:33
-    wal start/stop: 000000010000001800000046 / 000000010000001800000046
+incr backup: 20221223-102321F_20221223-102825I
+    timestamp start/stop: 2022-12-23 10:28:25 / 2022-12-23 10:28:53
+    wal start/stop: 00000001000000CC00000050 / 00000001000000CC00000050
+    database size: 14GB, database backup size: 12.5GB
+    repo1: backup set size: 424.4MB, backup size: 353MB
+    backup reference list: 20221223-102321F
+
+full backup: 20221223-102854F
+    timestamp start/stop: 2022-12-23 10:28:54 / 2022-12-23 10:29:21
+    wal start/stop: 00000001000000CC00000052 / 00000001000000CC00000052
+    database size: 14GB, database backup size: 14GB
+    repo1: backup set size: 374.7MB, backup size: 374.7MB
+
+incr backup: 20221223-102854F_20221223-102937I
+    timestamp start/stop: 2022-12-23 10:29:37 / 2022-12-23 10:29:59
+    wal start/stop: 00000001000000CC0000005F / 00000001000000CC0000005F
     database size: 14GB, database backup size: 8.5GB
-    repo1: backup set size: 169.7MB, backup size: 3.6MB
-    backup reference list: 20221121-150151F, 20221121-150151F_20221121-150411I
+    repo1: backup set size: 169.6MB, backup size: 3.6MB
+    backup reference list: 20221223-102854F
 ```
 
 Let's compare disk space usage of the file-level and block-level incremental backups:
 
 ```bash
-$ du -hs 20221121-145505F_20221121-150035I/pg_data/base/24580
-354M	20221121-145505F_20221121-150035I/pg_data/base/24580
+$ du -hs 20221223-102321F_20221223-102825I/pg_data/base/404476
+354M    20221223-102321F_20221223-102825I/pg_data/base/404476
 
-$ du -hs 20221121-150151F_20221121-150411I/pg_data/base/24580
-3.8M	20221121-150151F_20221121-150411I/pg_data/base/24580
+$ du -hs 20221223-102854F_20221223-102937I/pg_data/base/404476
+3.6M    20221223-102854F_20221223-102937I/pg_data/base/404476
 ```
 
 -----
@@ -272,24 +265,22 @@ $ du -hs 20221121-150151F_20221121-150411I/pg_data/base/24580
 
 |     | Full time | size   | Incr time | size   | Block full time | size   | Block Incr time | size   |
 |-----|-----------|--------|-----------|--------|-----------------|--------|-----------------|--------|
-| gz  | 164s      | 547 MB | 77s       | 425 MB | 95s             | 553 MB | 23s             | 5.3 MB |
-| lz4 | 25s       | 985 MB | 24s       | 817 MB | 28s             | 990 MB | 22s             | 9.1 MB |
-| zst | 31s       | 422 MB | 28s       | 353 MB | 30s             | 374 MB | 22s             | 3.6 MB |
+| gz  | 99s       | 547 MB | 105s      | 462 MB | 103s            | 553 MB | 24s             | 5.4 MB |
+| lz4 | 27s       | 986 MB | 25s       | 817 MB | 28s             | 990 MB | 23s             | 9.1 MB |
+| zst | 32s       | 422 MB | 29s       | 353 MB | 28s             | 374 MB | 23s             | 3.6 MB |
 
-Obviously, disk-space saving will highly depend on the workload. Gzip is very-good at text compression but lot slower.
+Obviously, disk-space saving will highly depend on the workload. Gzip is pretty good at text compression but lot slower.
 Even though LZ4 is known to be faster, Zstandard provides the best compression rate while saving a lot of time too.
 
 It is important to keep in mind that the main focus of this feature implementation is not reducing the backup time which is here reduced by selecting the best compression algorithm possible.
 
-Zstandard providing very interesting results, we can see that for 1% of our removed data, the file-level incremental backup is only reduced to ~87%, while the block-level is reduced to less than **1%**!
+Zstandard providing very interesting results, we can see that for 1% of our removed data, the file-level incremental backup is only reduced to ~84%, while the block-level is reduced to less than **1%**!
 
 During this test, done on local disks, we can notice that the various compression methods run at the same time for block-level incremental backups because the limiting factor is performing the checksums (reading the data files, not copying or compressing them).
 
 -----
 
 # Restore command test scenario
-
-To have some meaningful timings (introduce network latency), I'll now use a remote S3 bucket to store the backups.
 
 The first step is to create a database with 80'000'000 rows:
 
@@ -328,206 +319,152 @@ pgbackrest --stanza=my_stanza --type=incr backup
 
 -----
 
-## Block-level
+## File-level
 
-Running the backup commands using the `--repo1-block` option gave:
+Running the default backup commands gave:
 
 ```
-full backup: 20221124-075712F
-    timestamp start/stop: 2022-11-24 07:57:12 / 2022-11-24 08:02:12
-    wal start/stop: 000000010000005E00000005 / 000000010000005E00000005
+full backup: 20221223-124827F
+    timestamp start/stop: 2022-12-23 12:48:27 / 2022-12-23 12:48:53
+    wal start/stop: 00000001000000D500000045 / 00000001000000D500000045
     database size: 11.7GB, database backup size: 11.7GB
-    repo1: backup set size: 512.1MB, backup size: 512.1MB
+    repo1: backup set size: 545.6MB, backup size: 545.6MB
 
-incr backup: 20221124-075712F_20221124-081439I
-    timestamp start/stop: 2022-11-24 08:14:39 / 2022-11-24 08:15:43
-    wal start/stop: 000000010000005E000000DA / 000000010000005E000000DA
+incr backup: 20221223-124827F_20221223-124956I
+    timestamp start/stop: 2022-12-23 12:49:56 / 2022-12-23 12:50:28
+    wal start/stop: 00000001000000D600000018 / 00000001000000D600000018
     database size: 11.7GB, database backup size: 11.7GB
-    repo1: backup set size: 70.6MB, backup size: 66.9MB
-    backup reference list: 20221124-075712F, 20221124-075712F_20221124-081439I
+    repo1: backup set size: 546.3MB, backup size: 542.4MB
+    backup reference list: 20221223-124827F
+```
+
+From the storage point-of-view:
+
+```
+# 20221223-124827F
+29M     404618.1.zst
+184K    404618.10.zst
+29M     404618.2.zst
+29M     404618.3.zst
+29M     404618.4.zst
+29M     404618.5.zst
+29M     404618.6.zst
+29M     404618.7.zst
+29M     404618.8.zst
+29M     404618.9.zst
+29M     404618.zst
+
+# 20221223-124827F_20221223-124956I
+29M     404618.1.zst
+29M     404618.2.zst
+29M     404618.3.zst
+29M     404618.4.zst
+29M     404618.5.zst
+29M     404618.6.zst
+29M     404618.7.zst
+29M     404618.8.zst
+29M     404618.9.zst
+29M     404618.zst
+```
+
+The restore commands:
+
+```bash
+$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221223-124827F
+...
+P00   INFO: restore command end: completed successfully (24190ms)
+
+$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221223-124827F_20221223-124956I --delta
+...
+P00   INFO: restore command end: completed successfully (25258ms)
+```
+
+-----
+
+## Block-level
+
+Running the backup commands using the `--repo1-block --repo1-bundle` option gave:
+
+```
+full backup: 20221223-125256F
+    timestamp start/stop: 2022-12-23 12:52:56 / 2022-12-23 12:53:24
+    wal start/stop: 00000001000000D800000082 / 00000001000000D800000082
+    database size: 11.7GB, database backup size: 11.7GB
+    repo1: backup set size: 512.5MB, backup size: 512.5MB
+
+incr backup: 20221223-125256F_20221223-125430I
+    timestamp start/stop: 2022-12-23 12:54:30 / 2022-12-23 12:54:56
+    wal start/stop: 00000001000000D900000055 / 00000001000000D900000055
+    database size: 11.7GB, database backup size: 11.7GB
+    repo1: backup set size: 70.8MB, backup size: 66.9MB
+    backup reference list: 20221223-125256F
 ```
 
 Let's have a look at the storage size:
 
 ```
-# 20221124-075712F
-33261.1.pgbi    24.5 MB
-33261.10.pgbi   150.3 KB
-33261.2.pgbi    24.5 MB
-33261.3.pgbi    24.5 MB
-33261.4.pgbi    24.5 MB
-33261.5.pgbi    24.5 MB
-33261.6.pgbi    24.5 MB
-33261.7.pgbi    24.5 MB
-33261.8.pgbi    24.5 MB
-33261.9.pgbi    24.5 MB
-33261.pgbi      24.5 MB
+# 20221223-125256F
+25M     404648.1.pgbi
+164K    404648.10.pgbi
+25M     404648.2.pgbi
+25M     404648.3.pgbi
+25M     404648.4.pgbi
+25M     404648.5.pgbi
+25M     404648.6.pgbi
+25M     404648.7.pgbi
+25M     404648.8.pgbi
+25M     404648.9.pgbi
+25M     404648.pgbi
 
-# 20221124-075712F_20221124-081439I
-33261.1.pgbi    3.1 MB
-33261.2.pgbi    3.1 MB
-33261.3.pgbi    3.1 MB
-33261.4.pgbi    3.1 MB
-33261.5.pgbi    3.1 MB
-33261.6.pgbi    3.1 MB
-33261.7.pgbi    3.1 MB
-33261.8.pgbi    3.1 MB
-33261.9.pgbi    3.1 MB
-33261.pgbi      3.1 MB
+# 20221223-125256F_20221223-125430I
+3.1M    404648.1.pgbi
+3.2M    404648.2.pgbi
+3.1M    404648.3.pgbi
+3.1M    404648.4.pgbi
+3.1M    404648.5.pgbi
+3.1M    404648.6.pgbi
+3.1M    404648.7.pgbi
+3.1M    404648.8.pgbi
+3.2M    404648.9.pgbi
+3.1M    404648.pgbi
 ```
 
 Let's first restore the full backup and then the incremental one:
 
 ```bash
-$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221124-075712F
+$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221223-125256F
 ...
-P00   INFO: restore command end: completed successfully (190128ms)
+P00   INFO: restore command end: completed successfully (23564ms)
 
-$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221124-075712F_20221124-081439I --delta
+$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221223-125256F_20221223-125430I --delta
 ...
-P00   INFO: restore command end: completed successfully (43244ms)
-```
-
------
-
-## File-level
-
-Running the backup commands without using the `--repo1-block` option gave:
-
-```
-full backup: 20221124-083203F
-    timestamp start/stop: 2022-11-24 08:32:03 / 2022-11-24 08:37:02
-    wal start/stop: 000000010000006100000043 / 000000010000006100000043
-    database size: 11.7GB, database backup size: 11.7GB
-    repo1: backup set size: 545.3MB, backup size: 545.3MB
-
-incr backup: 20221124-083203F_20221124-085141I
-    timestamp start/stop: 2022-11-24 08:51:41 / 2022-11-24 08:58:10
-    wal start/stop: 000000010000006200000016 / 000000010000006200000016
-    database size: 11.7GB, database backup size: 11.7GB
-    repo1: backup set size: 546MB, backup size: 542.4MB
-    backup reference list: 20221124-083203F, 20221124-083203F_20221124-085141I
-```
-
-From the storage point-of-view:
-
-```
-# 20221124-083203F
-33291.1.zst     28.2 MB
-33291.10.zst    162.5 KB
-33291.2.zst     28.2 MB
-33291.3.zst     28.2 MB
-33291.4.zst     28.2 MB
-33291.5.zst     28.2 MB
-33291.6.zst     28.2 MB
-33291.7.zst     28.2 MB
-33291.8.zst     28.2 MB
-33291.9.zst     28.2 MB
-33291.zst       28.2 MB
-
-# 20221124-083203F_20221124-085141I
-33291.1.zst     28.2 MB
-33291.2.zst     28.2 MB
-33291.3.zst     28.2 MB
-33291.4.zst     28.2 MB
-33291.5.zst     28.2 MB
-33291.6.zst     28.2 MB
-33291.7.zst     28.2 MB
-33291.8.zst     28.2 MB
-33291.9.zst     28.2 MB
-33291.zst       28.2 MB
-```
-
-The restore commands:
-
-```bash
-$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221124-083203F
-...
-P00   INFO: restore command end: completed successfully (151767ms)
-
-$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221124-083203F_20221124-085141I --delta
-...
-P00   INFO: restore command end: completed successfully (120979ms)
-```
-
------
-
-## Block-level + file bundles
-
-Running the backup commands using the `--repo1-block --repo1-bundle` options gave:
-
-```
-full backup: 20221124-092059F
-    timestamp start/stop: 2022-11-24 09:20:59 / 2022-11-24 09:27:40
-    wal start/stop: 00000001000000640000007F / 00000001000000640000007F
-    database size: 11.7GB, database backup size: 11.7GB
-    repo1: backup set size: 512.2MB, backup size: 512.2MB
-
-incr backup: 20221124-092059F_20221124-093747I
-    timestamp start/stop: 2022-11-24 09:37:47 / 2022-11-24 09:39:28
-    wal start/stop: 000000010000006500000053 / 000000010000006500000053
-    database size: 11.7GB, database backup size: 11.7GB
-    repo1: backup set size: 70.6MB, backup size: 66.8MB
-    backup reference list: 20221124-092059F, 20221124-092059F_20221124-093747I
-```
-
-From the storage point-of-view:
-
-```
-# 20221124-092059F
-33321.1.pgbi    24.5 MB
-33321.10.pgbi   150.3 KB
-33321.2.pgbi    24.5 MB
-33321.3.pgbi    24.5 MB
-33321.4.pgbi    24.5 MB
-33321.5.pgbi    24.5 MB
-33321.6.pgbi    24.5 MB
-33321.7.pgbi    24.5 MB
-33321.8.pgbi    24.5 MB
-33321.9.pgbi    24.5 MB
-33321.pgbi      24.5 MB
-
-# 20221124-092059F_20221124-093747I
-33321.1.pgbi    3.1 MB
-33321.2.pgbi    3.1 MB
-33321.3.pgbi    3.1 MB
-33321.4.pgbi    3.1 MB
-33321.5.pgbi    3.1 MB
-33321.6.pgbi    3.1 MB
-33321.7.pgbi    3.1 MB
-33321.8.pgbi    3.1 MB
-33321.9.pgbi    3.1 MB
-33321.pgbi      3.1 MB
-```
-
-The restore commands:
-
-```bash
-$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221124-092059F
-...
-P00   INFO: restore command end: completed successfully (149596ms)
-
-$ pgbackrest --stanza=my_stanza restore --pg1-path=/tmp/restored_data --set=20221124-092059F_20221124-093747I --delta
-...
-P00   INFO: restore command end: completed successfully (42972ms)
+P00   INFO: restore command end: completed successfully (23013ms)
 ```
 
 -----
 
 ## Restore results comparison table
 
-|                       | Full time | Incr time | Incr file size | Full restore time | Incr restore time |
-|-----------------------|-----------|-----------|----------------|-------------------|-------------------|
-| file-level            | 3m        | 6m 30s    | 28.2 MB        | 152s              | 121s              |
-| block-level           | 3m        | 1m  4s    |  3.1 MB        | 190s              |  43s              |
-| block-level + bundles | 6m 41s    | 1m 41s    |  3.1 MB        | 149s              |  43s              |
+* Local MinIO instance:
 
-Here we introduced some network/disk latency by using a remote S3 bucket.
+|             | Full time | Incr time | Incr file size | Full restore time | Incr restore time |
+|-------------|-----------|-----------|----------------|-------------------|-------------------|
+| file-level  | 26s       | 32s       |  29 MB         | 24s               | 25s               |
+| block-level | 28s       | 27s       | 3.2 MB         | 23s               | 23s               |
 
-We notice that a full restore will be slower with block-level enabled because there's more work to do to reconstruct the file. But - there is a chance for delta restores to be faster since we are able to pull individual blocks out of the repository and update an existing file rather than recopying the entire file, as we can notice with the incremental restore time !
+Obviously here on local disks, the network/disk latency is pretty low and we don't see much differences even though delta restores should be faster since we are able to pull individual blocks out of the repository and update an existing file rather than recopying the entire file.
+
+* Let's try with an Azure container:
+
+|             | Full time               | Incr time | Full restore time | Incr restore time  |
+|-------------|-------------------------|-----------|-------------------|--------------------|
+| file-level  | 20m 30s, 9m 45s, 11m 7s | 13m 8s    | 2m 47s, 58s, 56s  | 1m 19s, 52s, 1m 7s |
+| block-level | 10m 24s, 8m 56s, 9m 26s | 2m 5s     | 1m 7s, 50s, 1m 6s | 31s, 36s, 28s      |
+
+Even with the time variation due to the remote storage access, we easily notice that with the size to upload/download being way smaller, the incremental backup are restores are also way faster.
 
 -----
 
 # Conclusion
 
-Depending on the actual workload, this wip can really save a lot of disk-space in the repository, which can also speed-up the backup command because we'll only send the blocks modified to the repository, not the entire data file. That will also be reflected in delta restores, fetching less data from the repository and updating existing files.
+Depending on the actual workload, this new feature can really save a lot of disk-space in the repository, which can also speed-up the backup command because we'll only send the blocks modified to the repository, not the entire data file. That will also be reflected in delta restores, fetching less data from the repository and updating existing files.
