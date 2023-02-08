@@ -22,7 +22,7 @@ permalink: /talks/
 
 * 2021-03-11 - EN - PostgreSQL User group NL : ***Unleash the Power within pgBackRest***
 * 2021-07-09 - EN - pgDay Russia : [Unleash the Power within pgBackRest](https://pgstef.github.io/talks/en/20210709_pgdayru_Unleash-the-Power-within-pgBackRest.pdf)
-* 2021-11-17 - FR - pgSession Paris : [Dépôts de sauvegarde multiples avec pgBackRest](https://pgstef.github.io/talks/fr/20211117_pgsession14_pgbackrest-multi-repo.reveal.pdf)
+* 2021-11-17 - FR - PGSessions Paris : [Dépôts de sauvegarde multiples avec pgBackRest](https://pgstef.github.io/talks/fr/20211117_pgsession14_pgbackrest-multi-repo.reveal.pdf)
 
 ### 2022
 
@@ -33,3 +33,5 @@ permalink: /talks/
 ### 2023
 
 * 2023-02-03 - EN - FOSDEM PGDay : [Deep dive into the pgBackRest world](https://pgstef.github.io/talks/en/20230203_FOSDEM-PGDay_Deep-dive-into-the-pgBackRest-world.pdf)
+* 2023-02-15 - FR - PGSessions Paris : [PostgreSQL et ses cibles de restauration](https://pgstef.github.io/talks/fr/20230215_PGSessions_PostgreSQL-Recovery-Targets_FR.reveal.pdf)
+* 2023-02-15 - EN - PGSessions Paris : [PostgreSQL Recovery Targets](https://pgstef.github.io/talks/en/20230215_PGSessions_PostgreSQL-Recovery-Targets_EN.reveal.pdf)
