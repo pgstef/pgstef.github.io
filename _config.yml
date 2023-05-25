@@ -14,7 +14,7 @@ timezone: Europe/Brussels
 excerpt_separator: "<!--MORE-->"
 paginate: 10
 paginate_path: "page:num"
-exclude: ["README.md", "syntax.md", "_drafts", "_drafts/template.md"]
+exclude: ["README.md", "syntax.md", "_drafts", "_drafts/template.md", "wip"]
 show_drafts: false
 
 plugins:
