@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2023
 
+* 2023-06-27 - EN - PGConf.DE : [Deep dive into the pgBackRest world](20230627_PGConfDE_Deep-dive-into-the-pgBackRest-world.reveal.pdf)
 * 2023-03-23 - EN - pgDay Paris : [PostgreSQL Recovery Targets](https://pgstef.github.io/talks/en/20230323_pgDayParis_PostgreSQL-Recovery-Targets.reveal.pdf)
 * 2023-02-15 - EN - PGSessions Paris : [PostgreSQL Recovery Targets](https://pgstef.github.io/talks/en/20230215_PGSessions_PostgreSQL-Recovery-Targets_EN.reveal.pdf)
 * 2023-02-15 - FR - PGSessions Paris : [PostgreSQL et ses cibles de restauration](https://pgstef.github.io/talks/fr/20230215_PGSessions_PostgreSQL-Recovery-Targets_FR.reveal.pdf)
