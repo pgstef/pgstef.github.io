@@ -203,3 +203,5 @@ stanza: demo
 
 The SFTP repository type is pretty easy to setup but as mentioned in the official documentation, the SFTP file transfer is relatively slow.
 Increasing `process-max` to parallelize file transfer and using file bundling will help but it would probably be better to use the other supported repository types if you can.
+
+Edit: pgBackRest [2.47](https://github.com/pgbackrest/pgbackrest/releases/tag/release%2F2.47) brought a significant performance improvement of the SFTP storage driver. So it becomes a good option if you really need to use it.
