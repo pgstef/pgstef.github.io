@@ -3,8 +3,8 @@ description: SELECT * FROM pgstef
 theme: jekyll-theme-hacker
 
 name: Stefan Fercot
-work: Database Backup Architect 
-company: EDB
+work: pgBackRest contributor
+company: None
 avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
 twitter: pgstef
 email: pgstef@fercot.be
