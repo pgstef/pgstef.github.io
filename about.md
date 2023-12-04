@@ -7,8 +7,8 @@ permalink: /about/
 ![]({{ site.avatar }})
 
 * Name : {{ site.name }}
-* Job :<!--  {{ site.work }}
-* Compa -->ny : [{{ site.company }}](https://www.enterprisedb.com/)
+* Job : {{ site.work }}
+<!-- * Company : [{{ site.company }}](https://www.postgresql.org/) -->
 * Twitter : [{{ site.twitter }}](http://twitter.com/{{ site.twitter }})
 * Mastodon : [{{ site.mastodon }}](https://fosstodon.org/@pgstef){:rel="me"}
 
@@ -20,4 +20,4 @@ Worked on a large number of servers in the Belgian health-care area, deploying s
 
 Worked for Dalibo between 2017 and 2020: training, support, customer consultancy and as much contribution to the PostgreSQL community as possible.
 
-Have been contributing to [pgBackRest](https://pgbackrest.org/) during the last years.
+Database Backup Architect at [EDB](https://www.enterprisedb.com) for the following 3 years, mainly focused on contributing to [pgBackRest](https://pgbackrest.org/).

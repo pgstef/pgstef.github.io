@@ -3,7 +3,7 @@ description: SELECT * FROM pgstef
 theme: jekyll-theme-hacker
 
 name: Stefan Fercot
-work: pgBackRest contributor
+work: PostgreSQL Expert
 company: None
 avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
 twitter: pgstef
