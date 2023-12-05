@@ -3,8 +3,8 @@ description: SELECT * FROM pgstef
 theme: jekyll-theme-hacker
 
 name: Stefan Fercot
-work: PostgreSQL Expert
-company: None
+work: Senior PostgreSQL Expert
+company: Data Egret
 avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
 twitter: pgstef
 email: pgstef@fercot.be
