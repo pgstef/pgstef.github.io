@@ -4,6 +4,10 @@ title: My Talks
 permalink: /talks/
 ---
 
+### 2024
+
+* 2024-04-18 - EN - Data Egret webinar : [Introduction to PostgreSQL Backups](en/20240418_DataEgret-webinar_Introduction-to-PostgreSQL-Backups.pdf)
+
 ### 2023
 
 * 2023-12-15 - EN - PGConf.EU : [What can't pgBackRest do for you?](en/20231215_PGConfEU_What-cant-pgBackRest-do-for-you.pdf)
