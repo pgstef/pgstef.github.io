@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2024
 
+* 2024-05-07 - EN - PGConf Belgium: [Mastering PostgreSQL Recovery: Beyond Backup Basics](20240507_pgconfBE_Mastering-PostgreSQL-Recovery.pdf)
 * 2024-04-18 - EN - Data Egret webinar : [Introduction to PostgreSQL Backups](en/20240418_DataEgret-webinar_Introduction-to-PostgreSQL-Backups.pdf)
 
 ### 2023
