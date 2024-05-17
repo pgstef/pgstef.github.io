@@ -83,16 +83,32 @@ But what could we do to use both memory and parallel execution? Moving those tem
 
 ## Configure PostgreSQL to use tmpfs directory
 
-First, we need to create a tmpfs mount point. For example, `/var/pgsql_tmp`:
+To move temporary files to memory, we'll need to use the `temp_tablespaces` setting which requires to create a tablespace.
+So, we'll first create that tablespace and then move it to a tmpfs location.
+
+Let's start by creating a root directory for our tablespace:
 
 ```bash
 sudo mkdir /var/pgsql_tmp
 ```
 
-To make the tmpfs mount persistent, let's add it to `/etc/fstab`:
+Now, we have to create a tablespace for those PostgreSQL temporary files:
+
+```sql
+CREATE TABLESPACE tbstmp location '/var/pgsql_tmp';
+```
+
+PostgreSQL will create a sub-directory in `/var/pgsql_tmp` and we'll need to make that one permanent if we don't want to re-create the tablespace after each and every reboot:
+
+```bash
+$ ls /var/pgsql_tmp/
+PG_16_202307071
+```
+
+Finally, to make the tmpfs mount persistent, add it to `/etc/fstab`:
 
 ```
-tmpfs   /var/pgsql_tmp  tmpfs   rw,size=2G,uid=postgres,gid=postgres    0 0
+tmpfs   /var/pgsql_tmp/PG_16_202307071  tmpfs   rw,size=2G,uid=postgres,gid=postgres    0 0
 ```
 
 In this example, `size=2G` configures the tmpfs instance to use up to 2GB of RAM.
@@ -101,13 +117,7 @@ After configuring `/etc/fstab`, reload systemd and mount the tmpfs instance:
 
 ```bash
 sudo systemctl daemon-reload
-sudo mount /var/pgsql_tmp
-```
-
-Now, we have to create a tablespace for those PostgreSQL temporary files:
-
-```sql
-CREATE TABLESPACE tbstmp location '/var/pgsql_tmp';
+sudo mount /var/pgsql_tmp/PG_16_202307071
 ```
 
 Back to our initial example, let's now try to set `temp_tablespaces` and create the index again:
@@ -135,7 +145,7 @@ LOG:  duration: 3977.606 ms  statement: CREATE INDEX ON pgbench_accounts (aid, f
 To make that change permanent for all the temporary files, change the `temp_tablespaces` setting system-wide:
 
 ```sql
-ALTER SYSTEM SET temp_tablespaces TO 'pg_global,tbstmp';
+ALTER SYSTEM SET temp_tablespaces TO 'tbstmp';
 ```
 
 Finally, reload the PostgreSQL configuration for the changes to take effect:
@@ -162,7 +172,7 @@ min_val         |
 max_val         |
 enumvals        |
 boot_val        |
-reset_val       | "pg_global,tbstmp"
+reset_val       | "tbstmp"
 sourcefile      |
 sourceline      |
 pending_restart | f
