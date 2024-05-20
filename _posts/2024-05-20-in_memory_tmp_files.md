@@ -1,9 +1,9 @@
-<!-- ---
+---
 layout: post
-title: In-memory disk for temporary files
+title: In-memory disk for PostgreSQL temporary files
 # To generate formatted date, run LC_TIME=C date +"%F %T %z"
-# date: YYYY-MM-DD hh:mm:ss -0000
---- -->
+date: 2024-05-20 09:30:00 +0200
+---
 
 Recently, while debugging a performance issue of a `CREATE INDEX` operation, I was reminded that PostgreSQL might produce temporary files when executing a parallel query, including parallel index creation, because each worker process has its own memory and might need to use disk space for sorting or hash tables.
 
