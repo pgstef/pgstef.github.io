@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2024
 
+* 2024-06-20 - EN - Data Egret webinar : [The path to a successful PostgreSQL recovery](en/20240620_DataEgret-webinar_Path-to-PostgreSQL-Recovery.pdf)
 * 2024-06-11 - FR - PG Day France (Lille) : [Démystifier les sauvegardes incrémentales dans l'écosystème PostgreSQL](fr/20240611_PGDayFrance_Sauvegardes-incrementales.pdf)
 * 2024-05-23 - EN - Postgres User Group Frankfurt (am Main) : [PostgreSQL 17 beta: Incremental Backups](en/20240523_Meetup-Frankfurt_Incremental-Backups.pdf)
 * 2024-05-15 - EN - PostgreSQL User Group NRW MeetUp (Aachen) : [pgBackRest Frequently Asked Questions](en/20240515_Meetup-Aachen_pgBackRest-FAQ.pdf)
