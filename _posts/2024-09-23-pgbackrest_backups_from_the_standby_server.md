@@ -2,7 +2,6 @@
 layout: post
 title: pgBackRest backups from the standby server
 date: 2024-09-23 10:15:00 +0200
-draft: true
 ---
 
 Recently, we've received many questions about how to take backups from a standby server using pgBackRest. In this post, I'd like to clarify one of the most frequently asked questions and address a common misconception for new users.
