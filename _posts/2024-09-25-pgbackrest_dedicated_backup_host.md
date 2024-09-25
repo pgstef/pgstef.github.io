@@ -2,7 +2,6 @@
 layout: post
 title: pgBackRest dedicated backup host
 date: 2024-09-25 10:00:00 +0200
-draft: true
 ---
 
 As I mentioned in my last blog post, as your cluster grows with multiple standby servers and potentially automated failover (using tools like Patroni), it becomes more practical to set up a dedicated repository host, also known as a dedicated backup server. This backup server can then trigger backups and automatically select the appropriate node in case of failover, eliminating the need for manual intervention.
