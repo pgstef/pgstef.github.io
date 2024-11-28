@@ -2,7 +2,6 @@
 layout: post
 title: Combining cloud storage and dedicated backup host with pgBackRest
 date: 2024-11-28 08:30:00 +0100
-draft: true
 ---
 
 **pgBackRest** is a popular backup and restore tool for PostgreSQL, known for easily handling even the largest databases and workloads. It's packed with powerful features, but all that flexibility can sometimes feel a bit overwhelming.
@@ -271,6 +270,6 @@ Routing archiving directly to S3 helped avoid potential disk space issues on the
 
 However, from a security perspective, this setup exposes your S3 bucket's content to all nodes, requiring careful management of access credentials. It also adds the responsibility of keeping configuration files synchronized when making changes, such as updating retention settings.
 
-Additionally, if [encryption](https://pgbackrest.org/configuration.html#section-repository/option-repo-cipher-type) is used for cloud storage, the encryption key must be present on all nodes, further increasing the risk of exposure.
+Additionally, if [encryption](https://pgbackrest.org/configuration.html#section-repository/option-repo-cipher-type) is used, the key must be present on all nodes, further increasing the risk of exposure.
 
 Ultimately, finding the right balance between security and availability is the key challenge, and pgBackRest's flexibility helps you deal with it ;-)
