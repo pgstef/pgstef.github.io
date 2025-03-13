@@ -4,6 +4,10 @@ title: My Talks
 permalink: /talks/
 ---
 
+### 2025
+
+* 2025-03-13 - FR - Meetup PG Paris : [Au cœur des sauvegardes incrémentales](fr/20250313_Meetup-Paris_Sauvegardes-incrementales.pdf)
+
 ### 2024
 
 * 2024-09-11 - EN - PGDay UK : [Achieving minimal downtime in PostgreSQL maintenance tasks](en/20240911_PGDayUK_PostgreSQL-maintenance-tasks.pdf)
