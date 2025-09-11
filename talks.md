@@ -6,11 +6,12 @@ permalink: /talks/
 
 ### 2025
 
+* 2025-09-11 - EN - PGDay Lowlands warm-up meetup: [PgBouncer at scale: multi-instance setup](en/20250912_PGDayLowlands_PgBouncer-at-scale.pdf)
+* 2025-06-19 - FR - Voxxed Days Luxembourg : [pg_dump ou pas pg_dump, telle est la question](fr/20250619_voxxedlu_pgdump-ou-pas-pgdump.pdf)
 * 2025-05-08 - EN - PGConf.DE : [pgBackRest Advanced Archiving and Recovery Magic You'll Wish You Knew Sooner](en/20250508_PGConfDE_sponsor-track.pdf)
 * 2025-05-06 - EN - PGConf Belgium : [Tips and tools for minimal downtime in PostgreSQL upgrades](en/20250506_pgconfBE_minimal-downtime-in-PostgreSQL-upgrades.pdf)
 * 2025-04-23 - EN - Data Egret webinar : [Using multiple backup repositories with pgBackRest](en/20250423_DataEgret-webinar_Using_multiple_repositories_with_pgBackRest.pdf)
 * 2025-03-13 - FR - Meetup PG Paris : [Au cœur des sauvegardes incrémentales](fr/20250313_Meetup-Paris_Sauvegardes-incrementales.pdf)
-* 2025-06-19 - FR - Voxxed Days Luxembourg : [pg_dump ou pas pg_dump, telle est la question](fr/20250619_voxxedlu_pgdump-ou-pas-pgdump.pdf)
 
 ### 2024
 
