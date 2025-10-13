@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2025
 
+* 2025-10-14 - EN - Meetup PG Belgium: [Patroni and pgBackRest: better together](en/20251014_Meetup-PGBE_Patroni-and-pgBackRest.pdf)
 * 2025-09-25 - EN - FOSS4G Belgium: [PostgreSQL Upgrade Strategies](en/20250925_FOSS4GBE_PostgreSQL-upgrade-strategies.pdf)
 * 2025-09-11 - EN - PGDay Lowlands warm-up meetup: [PgBouncer at scale: multi-instance setup](en/20250912_PGDayLowlands_PgBouncer-at-scale.pdf)
 * 2025-06-19 - FR - Voxxed Days Luxembourg : [pg_dump ou pas pg_dump, telle est la question](fr/20250619_voxxedlu_pgdump-ou-pas-pgdump.pdf)
