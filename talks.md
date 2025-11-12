@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2025
 
+* 2025-11-13 - EN - DevDay Belgium: [The art of data retention in PostgreSQL](en/20251113_DevDayBE_the-art-of-data-retention-in-PostgreSQL.pdf)
 * 2025-10-22 - EN - PGConf.EU: [Patroni and pgBackRest: better together](en/20251022_PGConfEU_Patroni-and-pgBackRest.pdf)
 * 2025-10-14 - EN - Meetup PG Belgium: [Patroni and pgBackRest: better together](en/20251014_Meetup-PGBE_Patroni-and-pgBackRest.pdf)
 * 2025-09-25 - EN - FOSS4G Belgium: [PostgreSQL Upgrade Strategies](en/20250925_FOSS4GBE_PostgreSQL-upgrade-strategies.pdf)
