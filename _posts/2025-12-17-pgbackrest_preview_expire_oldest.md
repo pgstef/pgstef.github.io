@@ -1,7 +1,7 @@
 ---
 layout: post
 title: pgBackRest preview - simplifying manual expiration of oldest backups
-date: 2025-12-17 11:45:00 +0100
+date: 2025-12-17 11:35:00 +0100
 ---
 
 A useful new feature was introduced on 11 December 2025: **Allow expiration of the oldest full backup regardless of current retention**.
@@ -17,7 +17,7 @@ Let's see how this works in practice with a simple example.
 
 -----
 
-# Feature testing
+# Example of expiring the oldest full backup
 
 Let's use a very basic demo setup.
 
