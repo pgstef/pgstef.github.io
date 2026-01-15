@@ -4,6 +4,10 @@ title: My Talks
 permalink: /talks/
 ---
 
+### 2026
+
+* 2026-01-14 - FR - PGSessions Paris: [Patroni + pgBackRest : le duo gagnant](fr/20260114_PGSession_Patroni-et-pgBackRest.pdf)
+
 ### 2025
 
 * 2025-11-13 - EN - DevDay Belgium: [The art of data retention in PostgreSQL](en/20251113_DevDayBE_the-art-of-data-retention-in-PostgreSQL.pdf)
