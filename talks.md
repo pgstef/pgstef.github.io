@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2026
 
+* 2026-01-30 - EN - FOSDEM PGDay: [pgBackRest: faster WAL archiving, safer restores](en/20260130_FOSDEM-PGDay_pgBackRest-magic.pdf)
 * 2026-01-14 - FR - PGSessions Paris: [Patroni + pgBackRest : le duo gagnant](fr/20260114_PGSession_Patroni-et-pgBackRest.pdf)
 
 ### 2025
