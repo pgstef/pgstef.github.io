@@ -6,16 +6,17 @@ permalink: /talks/
 
 ### 2026
 
-* 2026-01-30 - EN - FOSDEM PGDay: [pgBackRest: faster WAL archiving, safer restores](en/20260130_FOSDEM-PGDay_pgBackRest-magic.pdf)
-* 2026-01-14 - FR - PGSessions Paris: [Patroni + pgBackRest : le duo gagnant](fr/20260114_PGSession_Patroni-et-pgBackRest.pdf)
+* 2026-04-21 - EN - PGConf.DE : [pgBackRest in HA setups: deployment patterns that work](en/20260421_PGConfDE_pgBackRest-deployment-patterns.pdf)
+* 2026-01-30 - EN - FOSDEM PGDay : [pgBackRest: faster WAL archiving, safer restores](en/20260130_FOSDEM-PGDay_pgBackRest-magic.pdf)
+* 2026-01-14 - FR - PGSessions Paris : [Patroni + pgBackRest : le duo gagnant](fr/20260114_PGSession_Patroni-et-pgBackRest.pdf)
 
 ### 2025
 
-* 2025-11-13 - EN - DevDay Belgium: [The art of data retention in PostgreSQL](en/20251113_DevDayBE_the-art-of-data-retention-in-PostgreSQL.pdf)
-* 2025-10-22 - EN - PGConf.EU: [Patroni and pgBackRest: better together](en/20251022_PGConfEU_Patroni-and-pgBackRest.pdf)
-* 2025-10-14 - EN - Meetup PG Belgium: [Patroni and pgBackRest: better together](en/20251014_Meetup-PGBE_Patroni-and-pgBackRest.pdf)
-* 2025-09-25 - EN - FOSS4G Belgium: [PostgreSQL Upgrade Strategies](en/20250925_FOSS4GBE_PostgreSQL-upgrade-strategies.pdf)
-* 2025-09-11 - EN - PGDay Lowlands warm-up meetup: [PgBouncer at scale: multi-instance setup](en/20250912_PGDayLowlands_PgBouncer-at-scale.pdf)
+* 2025-11-13 - EN - DevDay Belgium : [The art of data retention in PostgreSQL](en/20251113_DevDayBE_the-art-of-data-retention-in-PostgreSQL.pdf)
+* 2025-10-22 - EN - PGConf.EU : [Patroni and pgBackRest: better together](en/20251022_PGConfEU_Patroni-and-pgBackRest.pdf)
+* 2025-10-14 - EN - Meetup PG Belgium : [Patroni and pgBackRest: better together](en/20251014_Meetup-PGBE_Patroni-and-pgBackRest.pdf)
+* 2025-09-25 - EN - FOSS4G Belgium : [PostgreSQL Upgrade Strategies](en/20250925_FOSS4GBE_PostgreSQL-upgrade-strategies.pdf)
+* 2025-09-11 - EN - PGDay Lowlands warm-up meetup : [PgBouncer at scale: multi-instance setup](en/20250912_PGDayLowlands_PgBouncer-at-scale.pdf)
 * 2025-06-19 - FR - Voxxed Days Luxembourg : [pg_dump ou pas pg_dump, telle est la question](fr/20250619_voxxedlu_pgdump-ou-pas-pgdump.pdf)
 * 2025-05-08 - EN - PGConf.DE : [pgBackRest Advanced Archiving and Recovery Magic You'll Wish You Knew Sooner](en/20250508_PGConfDE_sponsor-track.pdf)
 * 2025-05-06 - EN - PGConf Belgium : [Tips and tools for minimal downtime in PostgreSQL upgrades](en/20250506_pgconfBE_minimal-downtime-in-PostgreSQL-upgrades.pdf)
