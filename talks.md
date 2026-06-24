@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2026
 
+* 2026-06-23 - FR - Meetup PG Lille : [Après la tempête : l'avenir de pgBackRest](fr/20260623_Meetup-Lille_pgBackRest-après-la-tempête.pdf), [Patroni + pgBackRest : le duo gagnant](fr/20260623_Meetup-Lille_Patroni-et-pgBackRest.pdf)
 * 2026-04-21 - EN - PGConf.DE : [pgBackRest in HA setups: deployment patterns that work](en/20260421_PGConfDE_pgBackRest-deployment-patterns.pdf)
 * 2026-01-30 - EN - FOSDEM PGDay : [pgBackRest: faster WAL archiving, safer restores](en/20260130_FOSDEM-PGDay_pgBackRest-magic.pdf)
 * 2026-01-14 - FR - PGSessions Paris : [Patroni + pgBackRest : le duo gagnant](fr/20260114_PGSession_Patroni-et-pgBackRest.pdf)
