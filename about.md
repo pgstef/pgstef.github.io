@@ -25,6 +25,8 @@ Then, mainly focused on contributing to [pgBackRest](https://pgbackrest.org/) as
 
 Worked as *PostgreSQL Expert* at [Data Egret](https://dataegret.com) between 2023 and 2026, providing database support, maintenance and architectural consulting across a variety of PostgreSQL environments, with a strong focus on backup, recovery and high availability. Alongside client work, dedicated significant time to the PostgreSQL community and open-source contributions. Data Egret actively supported this community involvement, which helped me grow as a contributor and become recognised as a *significant PostgreSQL contributor*.
 
+In 2026, co-founded [CoS2in Partners](https://www.linkedin.com/company/cos2in-partners-srl), a Belgian consulting company providing specialised PostgreSQL expertise and creative design services. On the technology side, we provide occasional, on-demand technical advisory services, with particular expertise in backup tools, disaster recovery procedures and high availability solutions, and a strong focus on pgBackRest and Patroni.
+
 Now *Senior Software Engineer* at [Percona](https://www.percona.com), working on PostgreSQL and its ecosystem with a primary focus on pgBackRest development and upstream open-source contributions.
 
 Also serving as Vice-Treasurer of [PostgreSQL Europe](https://www.postgresql.eu).
