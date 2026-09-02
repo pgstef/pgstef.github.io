@@ -3,12 +3,15 @@ description: SELECT * FROM pgstef
 theme: jekyll-theme-hacker
 
 name: Stefan Fercot
-work: Senior PostgreSQL Expert
-company: Data Egret
+work: Senior Software Engineer
+company: Percona
+company_url: https://www.percona.com
 avatar: https://raw.githubusercontent.com/pgstef/pgstef.github.io/master/images/myAvatar.png
-twitter: pgstef
+
 email: pgstef@fercot.be
 mastodon: "@pgstef@fosstodon.org"
+linkedin: "in/stefan-fercot"
+bluesky: "@pgstef.bsky.social"
 
 timezone: Europe/Brussels
 excerpt_separator: "<!--MORE-->"
