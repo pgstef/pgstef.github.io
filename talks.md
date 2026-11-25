@@ -6,6 +6,7 @@ permalink: /talks/
 
 ### 2026
 
+* 2016-12-01 - EN - Percona.Connect Brussels : [pg_dump or not pg_dump: when it's time for pgBackRest](en/20261201_Percona-Connect_pg_dump-or-not-pg_dump.pdf)
 * 2016-10-20 - EN - PGConf.EU : [pgBackRest in HA setups: deployment patterns that work](en/20261020_PGConfEU_pgBackRest-in-HA-setups.pdf)
 * 2026-06-23 - FR - Meetup PG Lille : [Après la tempête : l'avenir de pgBackRest](fr/20260623_Meetup-Lille_pgBackRest-après-la-tempête.pdf), [Patroni + pgBackRest : le duo gagnant](fr/20260623_Meetup-Lille_Patroni-et-pgBackRest.pdf)
 * 2026-04-21 - EN - PGConf.DE : [pgBackRest in HA setups: deployment patterns that work](en/20260421_PGConfDE_pgBackRest-deployment-patterns.pdf)
